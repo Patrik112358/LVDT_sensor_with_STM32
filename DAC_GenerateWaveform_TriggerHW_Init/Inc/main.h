@@ -54,7 +54,8 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-
+extern uint32_t timer_prescaler;
+extern uint32_t timer_reload;    
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/

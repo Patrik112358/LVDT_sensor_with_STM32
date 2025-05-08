@@ -27,7 +27,7 @@
 TIM_HandleTypeDef htim7;
 
 /* TIM6 init function */
-void MX_TIM6_Init(uint32_t timer_prescaler, uint32_t timer_reload)
+void MX_TIM6_Init(void)
 {
 
   /* USER CODE BEGIN TIM6_Init 0 */
@@ -59,7 +59,7 @@ void MX_TIM6_Init(uint32_t timer_prescaler, uint32_t timer_reload)
 
 }
 /* TIM7 init function */
-void MX_TIM7_Init(uint32_t timer_prescaler, uint32_t timer_reload)
+void MX_TIM7_Init(void)
 {
 
   /* USER CODE BEGIN TIM7_Init 0 */
@@ -72,9 +72,9 @@ void MX_TIM7_Init(uint32_t timer_prescaler, uint32_t timer_reload)
 
   /* USER CODE END TIM7_Init 1 */
   htim7.Instance = TIM7;
-  htim7.Init.Prescaler = timer_prescaler;
+  htim7.Init.Prescaler = tim7_prescaler;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim7.Init.Period = timer_reload;
+  htim7.Init.Period = 1250;
   htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
   {

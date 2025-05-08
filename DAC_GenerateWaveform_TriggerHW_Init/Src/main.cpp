@@ -19,10 +19,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
+#include "cordic.h"
 #include "dac.h"
 #include "dma.h"
-#include "ssd1306.h"
-#include "ssd1306_tests.h"
 #include "usart.h"
 #include "opamp.h"
 #include "spi.h"
@@ -31,6 +30,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "ssd1306.h"
+#include "ssd1306_tests.h"
 #include "goertzel.h"
 /* USER CODE END Includes */
 
@@ -200,14 +201,16 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_DAC1_Init();
-  MX_TIM6_Init(timer_prescaler, timer_reload);
+  MX_TIM6_Init();
   MX_ADC1_Init();
   MX_ADC2_Init();
   MX_OPAMP1_Init();
   MX_OPAMP2_Init();
   MX_USART1_UART_Init();
   MX_LPUART1_UART_Init();
-  MX_TIM7_Init(tim7_prescaler, tim7_period);
+  MX_TIM7_Init();
+  MX_SPI1_Init();
+  MX_CORDIC_Init();
   /* USER CODE BEGIN 2 */
   MX_SPI1_Init();
   ssd1306_Init();

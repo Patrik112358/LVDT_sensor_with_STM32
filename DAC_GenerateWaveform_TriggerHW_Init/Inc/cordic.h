@@ -1,9 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    tim.h
+  * @file    cordic.h
   * @brief   This file contains all the function prototypes for
-  *          the tim.c file
+  *          the cordic.c file
   ******************************************************************************
   * @attention
   *
@@ -18,8 +18,8 @@
   */
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __TIM_H__
-#define __TIM_H__
+#ifndef __CORDIC_H__
+#define __CORDIC_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,14 +32,13 @@ extern "C" {
 
 /* USER CODE END Includes */
 
-extern TIM_HandleTypeDef htim7;
+extern CORDIC_HandleTypeDef hcordic;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-void MX_TIM6_Init(void);
-void MX_TIM7_Init(void);
+void MX_CORDIC_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
@@ -49,5 +48,5 @@ void MX_TIM7_Init(void);
 }
 #endif
 
-#endif /* __TIM_H__ */
+#endif /* __CORDIC_H__ */
 
