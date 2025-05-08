@@ -274,8 +274,8 @@ int main(void)
   LED_On();
 
   /* Start ADC1 and ADC2 with DMA channel 1 */
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_data_buffer, ADC_BUFFER_SIZE);
-
+  // HAL_ADCEx_MultiModeStart_DMA(&hadc1, (uint32_t*)adc_data_buffer, ADC_BUFFER_SIZE);
+  
 
   /* USER CODE END 2 */
 
