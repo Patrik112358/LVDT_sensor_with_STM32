@@ -1,0 +1,4 @@
+DAC_GenerateWaveform_TriggerHW_Init/build/*
+!DAC_GenerateWaveform_TriggerHW_Init/build/compile_commands.json
+
+.cache/
