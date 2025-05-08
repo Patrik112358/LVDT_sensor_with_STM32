@@ -57,13 +57,7 @@ void MX_GPIO_Init(void)
   LL_GPIO_ResetOutputPin(OLED_DC_GPIO_Port, OLED_DC_Pin);
 
   /**/
-  LL_GPIO_ResetOutputPin(OLED_RES_GPIO_Port, OLED_RES_Pin);
-
-  /**/
-  LL_GPIO_ResetOutputPin(OLED_SPI_SCK_GPIO_Port, OLED_SPI_SCK_Pin);
-
-  /**/
-  LL_GPIO_ResetOutputPin(OLED_SPI_MOSI_GPIO_Port, OLED_SPI_MOSI_Pin);
+  LL_GPIO_ResetOutputPin(OLED_Res_GPIO_Port, OLED_Res_Pin);
 
   /**/
   LL_GPIO_SetOutputPin(OLED_CS_GPIO_Port, OLED_CS_Pin);
@@ -101,20 +95,12 @@ void MX_GPIO_Init(void)
   LL_GPIO_Init(OLED_DC_GPIO_Port, &GPIO_InitStruct);
 
   /**/
-  GPIO_InitStruct.Pin = OLED_RES_Pin;
+  GPIO_InitStruct.Pin = OLED_Res_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(OLED_RES_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = OLED_SPI_SCK_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(OLED_SPI_SCK_GPIO_Port, &GPIO_InitStruct);
+  LL_GPIO_Init(OLED_Res_GPIO_Port, &GPIO_InitStruct);
 
   /**/
   GPIO_InitStruct.Pin = OLED_CS_Pin;
@@ -123,14 +109,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   LL_GPIO_Init(OLED_CS_GPIO_Port, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = OLED_SPI_MOSI_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(OLED_SPI_MOSI_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   NVIC_SetPriority(EXTI15_10_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));

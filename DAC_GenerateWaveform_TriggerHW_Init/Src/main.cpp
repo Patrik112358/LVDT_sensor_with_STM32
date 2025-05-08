@@ -1,16 +1,12 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    Examples_LL/DAC/DAC_GenerateWaveform_TriggerHW_Init/Src/main.c
-  * @author  MCD Application Team
-  * @brief   This example describes how to use the DAC peripheral to generate
-  *          a voltage waveform from digital data stream transferred by DMA.
-  *          This example is based on the STM32G4xx DAC LL API;
-  *          Peripheral initialization done using LL initialization function.
+  * @file           : main.c
+  * @brief          : Main program body
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2019 STMicroelectronics.
+  * Copyright (c) 2025 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -27,6 +23,7 @@
 #include "dma.h"
 #include "usart.h"
 #include "opamp.h"
+#include "spi.h"
 #include "tim.h"
 #include "gpio.h"
 
