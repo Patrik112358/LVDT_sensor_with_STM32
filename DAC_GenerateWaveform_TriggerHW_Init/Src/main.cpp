@@ -215,6 +215,19 @@ int main(void)
   MX_SPI1_Init();
   ssd1306_Init();
   // ssd1306_TestAll();
+  ssd1306_TestRectangleInvert();
+  HAL_Delay(3000);
+  ssd1306_Fill(Black);
+  ssd1306_TestPolyline();
+  HAL_Delay(3000);
+  ssd1306_Fill(Black);
+  ssd1306_TestArc();
+  HAL_Delay(3000);
+  ssd1306_Fill(Black);
+  ssd1306_TestCircle();
+  HAL_Delay(3000);
+  ssd1306_TestDrawBitmap();
+  HAL_Delay(3000);
 
   /* Wait for User push-button press */
   WaitForUserButtonPress();
@@ -396,6 +409,14 @@ void UserButton_Callback(void)
     ubButtonPress = 1;
   }
 }
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+  if (GPIO_Pin == USER_BUTTON_Pin)
+  {
+    UserButton_Callback();
+  }
+}
+
 
 /**
   * @brief  DMA transfer error callback

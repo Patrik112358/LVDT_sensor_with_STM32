@@ -78,22 +78,22 @@ void DacUnderrunError_Callback(void);
 /* Private defines -----------------------------------------------------------*/
 #define tim7_prescaler 0
 #define tim7_period 1250
-#define USER_BUTTON_Pin LL_GPIO_PIN_13
+#define USER_BUTTON_Pin GPIO_PIN_13
 #define USER_BUTTON_GPIO_Port GPIOC
 #define USER_BUTTON_EXTI_IRQn EXTI15_10_IRQn
-#define LVDT_SEC1_IN_Pin LL_GPIO_PIN_1
+#define LVDT_SEC1_IN_Pin GPIO_PIN_1
 #define LVDT_SEC1_IN_GPIO_Port GPIOA
-#define LVDT_PRIMARY_DRIVE_Pin LL_GPIO_PIN_4
+#define LVDT_PRIMARY_DRIVE_Pin GPIO_PIN_4
 #define LVDT_PRIMARY_DRIVE_GPIO_Port GPIOA
-#define LED2_Pin LL_GPIO_PIN_5
+#define LED2_Pin GPIO_PIN_5
 #define LED2_GPIO_Port GPIOA
-#define LVDT_SEC2_IN_Pin LL_GPIO_PIN_7
+#define LVDT_SEC2_IN_Pin GPIO_PIN_7
 #define LVDT_SEC2_IN_GPIO_Port GPIOA
-#define OLED_DC_Pin LL_GPIO_PIN_10
+#define OLED_DC_Pin GPIO_PIN_10
 #define OLED_DC_GPIO_Port GPIOB
-#define OLED_Res_Pin LL_GPIO_PIN_8
+#define OLED_Res_Pin GPIO_PIN_8
 #define OLED_Res_GPIO_Port GPIOA
-#define OLED_CS_Pin LL_GPIO_PIN_4
+#define OLED_CS_Pin GPIO_PIN_4
 #define OLED_CS_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */

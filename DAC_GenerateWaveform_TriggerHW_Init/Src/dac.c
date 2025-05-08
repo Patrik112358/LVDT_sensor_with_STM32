@@ -43,10 +43,10 @@ void MX_DAC1_Init(void)
   /**DAC1 GPIO Configuration
   PA4   ------> DAC1_OUT1
   */
-  GPIO_InitStruct.Pin = LVDT_PRIMARY_DRIVE_Pin;
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_4;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(LVDT_PRIMARY_DRIVE_GPIO_Port, &GPIO_InitStruct);
+  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* DAC1 DMA Init */
 
