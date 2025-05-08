@@ -21,6 +21,8 @@
 #include "adc.h"
 #include "dac.h"
 #include "dma.h"
+#include "ssd1306.h"
+#include "ssd1306_tests.h"
 #include "usart.h"
 #include "opamp.h"
 #include "spi.h"
@@ -29,7 +31,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "goertzel.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -77,6 +79,8 @@
 #define LED_BLINK_SLOW  500
 #define LED_BLINK_ERROR 1000
 
+#define ADC_BUFFER_SIZE 512
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -106,6 +110,7 @@ __IO uint8_t ubButtonPress = 0;
 
 uint32_t timer_prescaler = 0;                   /* Time base prescaler to have timebase aligned on minimum frequency possible */
 uint32_t timer_reload = 0;                      /* Timer reload value in function of timer prescaler to achieve time base period */
+uint32_t adc_data_buffer[ADC_BUFFER_SIZE] = {0}; /* Buffer to store ADC data */
 
 const uint16_t WaveformSine_12bits_32samples[] =
 {
@@ -204,6 +209,9 @@ int main(void)
   MX_LPUART1_UART_Init();
   MX_TIM7_Init(tim7_prescaler, tim7_period);
   /* USER CODE BEGIN 2 */
+  MX_SPI1_Init();
+  ssd1306_Init();
+  // ssd1306_TestAll();
 
   /* Wait for User push-button press */
   WaitForUserButtonPress();
@@ -261,6 +269,10 @@ int main(void)
 
   /* Turn-on LED4 */
   LED_On();
+
+  /* Start ADC1 and ADC2 with DMA channel 1 */
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_data_buffer, ADC_BUFFER_SIZE);
+
 
   /* USER CODE END 2 */
 
