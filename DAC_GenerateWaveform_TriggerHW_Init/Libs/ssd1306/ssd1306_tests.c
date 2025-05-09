@@ -390,4 +390,3 @@ void ssd1306_TestAll() {
     ssd1306_TestDrawBitmap();
     HAL_Delay(3000);
 }
-
