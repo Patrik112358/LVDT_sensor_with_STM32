@@ -60,6 +60,8 @@
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc1;
+extern DMA_HandleTypeDef hdma_dac1_ch1;
+extern DAC_HandleTypeDef hdac1;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -230,6 +232,7 @@ void DMA1_Channel3_IRQHandler(void)
     DacDmaTransferError_Callback();
   }
   /* USER CODE END DMA1_Channel3_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_dac1_ch1);
   /* USER CODE BEGIN DMA1_Channel3_IRQn 1 */
 
   /* USER CODE END DMA1_Channel3_IRQn 1 */
@@ -256,15 +259,17 @@ void TIM6_DAC_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
   /* Check whether DAC channel1 under-run caused the DAC interruption */
-  if(LL_DAC_IsActiveFlag_DMAUDR1(DAC1) != 0)
-  {
-    /* Clear flag DAC channel1 under-run */
-    LL_DAC_ClearFlag_DMAUDR1(DAC1);
+  // FIXME: disabled when DAC changed to HAL, check if needed and how to do without LL_DAC
+  // if(LL_DAC_IsActiveFlag_DMAUDR1(DAC1) != 0)
+  // {
+  //   /* Clear flag DAC channel1 under-run */
+  //   LL_DAC_ClearFlag_DMAUDR1(DAC1);
     
-    /* Call interruption treatment function */
-    DacUnderrunError_Callback();
-  }
+  //   /* Call interruption treatment function */
+  //   DacUnderrunError_Callback();
+  // }
   /* USER CODE END TIM6_DAC_IRQn 0 */
+  HAL_DAC_IRQHandler(&hdac1);
   /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
 
   /* USER CODE END TIM6_DAC_IRQn 1 */
