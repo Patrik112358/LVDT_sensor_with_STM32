@@ -31,7 +31,7 @@
 // #define SSD1306_I2C_ADDR        (0x3C << 1)
 
 // SPI Configuration
-#define SSD1306_SPI_PORT        hspi1
+#define SSD1306_SPI_PORT        hspi2
 #define SSD1306_CS_Port         OLED_CS_GPIO_Port
 #define SSD1306_CS_Pin          OLED_CS_Pin
 #define SSD1306_DC_Port         OLED_DC_GPIO_Port

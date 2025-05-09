@@ -214,10 +214,9 @@ int main(void)
   MX_USART1_UART_Init();
   MX_LPUART1_UART_Init();
   MX_TIM7_Init();
-  MX_SPI1_Init();
   MX_CORDIC_Init();
+  MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
-  MX_SPI1_Init();
   ssd1306_Init();
   // ssd1306_TestAll();
   ssd1306_TestRectangleInvert();

@@ -80,11 +80,11 @@ void DacUnderrunError_Callback(void);
 #define LED2_GPIO_Port GPIOA
 #define LVDT_SEC2_IN_Pin GPIO_PIN_7
 #define LVDT_SEC2_IN_GPIO_Port GPIOA
-#define OLED_DC_Pin GPIO_PIN_10
+#define OLED_DC_Pin GPIO_PIN_1
 #define OLED_DC_GPIO_Port GPIOB
-#define OLED_Res_Pin GPIO_PIN_8
-#define OLED_Res_GPIO_Port GPIOA
-#define OLED_CS_Pin GPIO_PIN_4
+#define OLED_Res_Pin GPIO_PIN_2
+#define OLED_Res_GPIO_Port GPIOB
+#define OLED_CS_Pin GPIO_PIN_14
 #define OLED_CS_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
