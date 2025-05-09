@@ -52,3 +52,4 @@ HAL_StatusTypeDef cordic_compute_sqrt(float input, float* sqrt_out);
 #endif
 
 #endif /* __CORDIC_H__ */
+

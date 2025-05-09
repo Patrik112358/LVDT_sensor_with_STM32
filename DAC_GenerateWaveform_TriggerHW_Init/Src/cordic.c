@@ -19,7 +19,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "cordic.h"
-#include "stm32g4xx_hal_cordic.h"
 
 /* USER CODE BEGIN 0 */
 

@@ -22,13 +22,6 @@
 #include "cordic.h"
 #include "dac.h"
 #include "dma.h"
-#include "ssd1306_fonts.h"
-#include "stm32_hal_legacy.h"
-#include "stm32g4xx_hal_dac.h"
-#include "stm32g4xx_hal_def.h"
-#include "stm32g4xx_hal_dma.h"
-#include "stm32g4xx_hal_gpio.h"
-#include "stm32g4xx_hal_tim.h"
 #include "usart.h"
 #include "opamp.h"
 #include "spi.h"
@@ -38,6 +31,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "ssd1306.h"
+#include "ssd1306_fonts.h"
 #include "ssd1306_tests.h"
 #include <stm32g4xx_ll_dac.h>
 #include "goertzel.h"
