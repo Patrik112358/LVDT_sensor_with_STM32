@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "cordic.h"
+#include "stm32g4xx_hal_cordic.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -81,5 +82,82 @@ void HAL_CORDIC_MspDeInit(CORDIC_HandleTypeDef* cordicHandle)
 }
 
 /* USER CODE BEGIN 1 */
+/**
+ * @brief Computes sine and cosine of an angle using STM32 CORDIC in fixed-point mode.
+ * 
+ * @param[in]  angle_rad  Input angle in radians.
+ * @param[out] sin_out    Pointer to store sine result (can be NULL).
+ * @param[out] cos_out    Pointer to store cosine result (can be NULL).
+ * 
+ * @retval HAL_OK     Success.
+ * @retval HAL_ERROR  HAL configuration or calculation error.
+ */
+HAL_StatusTypeDef cordic_compute_sin_cos(float angle_rad, float* sin_out, float* cos_out)
+{
+    CORDIC_ConfigTypeDef config;
+    int32_t input_q31, output_q31[2];
+
+    // Convert angle from float to Q1.31 fixed-point
+    input_q31 = (int32_t)(angle_rad * (1LL << 31) / PI);  // CORDIC expects angle in [−π, π] mapped to [−1, 1)
+
+    // Configure CORDIC for sine/cosine
+    config.Function  = CORDIC_FUNCTION_SINE;
+    config.Precision = CORDIC_PRECISION_6CYCLES;
+    config.Scale     = CORDIC_SCALE_0;
+    config.NbWrite   = CORDIC_NBWRITE_2;
+    config.NbRead    = CORDIC_NBREAD_1;
+
+    if (HAL_CORDIC_Configure(&hcordic, &config) != HAL_OK)
+        return HAL_ERROR;
+
+    if (HAL_CORDIC_Calculate(&hcordic, &input_q31, output_q31, 1, HAL_MAX_DELAY) != HAL_OK)
+        return HAL_ERROR;
+
+    // Convert results from Q1.31 to float
+    if (sin_out) {*sin_out = output_q31[0] / (float)(1LL << 31);}
+    if (cos_out) {*cos_out = output_q31[1] / (float)(1LL << 31);}
+
+    return HAL_OK;
+}
+
+/**
+ * @brief Computes the square root of a non-negative number using STM32 CORDIC in fixed-point mode.
+ * 
+ * @param[in]  input      Positive float value to compute the square root of.
+ * @param[out] sqrt_out   Pointer to store the square root result (must not be NULL).
+ * 
+ * @retval HAL_OK     Success.
+ * @retval HAL_ERROR  HAL configuration or calculation error.
+ */
+HAL_StatusTypeDef cordic_compute_sqrt(float input, float* sqrt_out)
+{
+    extern CORDIC_HandleTypeDef hcordic;
+    CORDIC_ConfigTypeDef config;
+    int32_t input_q31, output_q31;
+
+    if (!sqrt_out || input < 0.0f)
+        return HAL_ERROR;
+
+    // Convert input from float to Q1.31 fixed-point
+    input_q31 = (int32_t)(input * (1LL << 31));
+
+    // Configure CORDIC for square root
+    config.Function  = CORDIC_FUNCTION_SQUAREROOT;
+    config.Precision = CORDIC_PRECISION_6CYCLES;
+    config.Scale     = CORDIC_SCALE_0;
+    config.NbWrite   = CORDIC_NBWRITE_1;
+    config.NbRead    = CORDIC_NBREAD_1;
+
+    if (HAL_CORDIC_Configure(&hcordic, &config) != HAL_OK)
+        return HAL_ERROR;
+
+    if (HAL_CORDIC_Calculate(&hcordic, &input_q31, &output_q31, 1, HAL_MAX_DELAY) != HAL_OK)
+        return HAL_ERROR;
+
+    // Convert result from Q1.31 to float
+    *sqrt_out = output_q31 / (float)(1LL << 31);
+
+    return HAL_OK;
+}
 
 /* USER CODE END 1 */

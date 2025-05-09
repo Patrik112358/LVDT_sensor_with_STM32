@@ -62,6 +62,7 @@
 extern DMA_HandleTypeDef hdma_adc1;
 extern DMA_HandleTypeDef hdma_dac1_ch1;
 extern DAC_HandleTypeDef hdac1;
+extern TIM_HandleTypeDef htim6;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -223,14 +224,14 @@ void DMA1_Channel3_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel3_IRQn 0 */
   /* Check whether DMA transfer error caused the DMA interruption */
-  if(LL_DMA_IsActiveFlag_TE3(DMA1) == 1)
-  {
-    /* Clear flag DMA transfer error */
-    LL_DMA_ClearFlag_TE3(DMA1);
+  // if(LL_DMA_IsActiveFlag_TE3(DMA1) == 1)
+  // {
+  //   /* Clear flag DMA transfer error */
+  //   LL_DMA_ClearFlag_TE3(DMA1);
     
-    /* Call interruption treatment function */
-    DacDmaTransferError_Callback();
-  }
+  //   /* Call interruption treatment function */
+  //   DacDmaTransferError_Callback();
+  // }
   /* USER CODE END DMA1_Channel3_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_dac1_ch1);
   /* USER CODE BEGIN DMA1_Channel3_IRQn 1 */
@@ -269,6 +270,7 @@ void TIM6_DAC_IRQHandler(void)
   //   DacUnderrunError_Callback();
   // }
   /* USER CODE END TIM6_DAC_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim6);
   HAL_DAC_IRQHandler(&hdac1);
   /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
 

@@ -42,6 +42,9 @@ void MX_CORDIC_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
+HAL_StatusTypeDef cordic_compute_sin_cos(float angle_rad, float* sin_out, float* cos_out);
+HAL_StatusTypeDef cordic_compute_sqrt(float input, float* sqrt_out);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
@@ -49,4 +52,3 @@ void MX_CORDIC_Init(void);
 #endif
 
 #endif /* __CORDIC_H__ */
-

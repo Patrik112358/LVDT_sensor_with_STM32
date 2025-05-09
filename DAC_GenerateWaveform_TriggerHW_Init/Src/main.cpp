@@ -22,6 +22,13 @@
 #include "cordic.h"
 #include "dac.h"
 #include "dma.h"
+#include "ssd1306_fonts.h"
+#include "stm32_hal_legacy.h"
+#include "stm32g4xx_hal_dac.h"
+#include "stm32g4xx_hal_def.h"
+#include "stm32g4xx_hal_dma.h"
+#include "stm32g4xx_hal_gpio.h"
+#include "stm32g4xx_hal_tim.h"
 #include "usart.h"
 #include "opamp.h"
 #include "spi.h"
@@ -82,6 +89,7 @@
 #define LED_BLINK_ERROR 1000
 
 #define ADC_BUFFER_SIZE 512
+const float PI = 3.14159265358979323846f;
 
 /* USER CODE END PD */
 
@@ -217,40 +225,65 @@ int main(void)
   ssd1306_Init();
   // ssd1306_TestAll();
   ssd1306_TestRectangleInvert();
-  HAL_Delay(1000);
-  ssd1306_Fill(Black);
-  ssd1306_TestPolyline();
-  HAL_Delay(1000);
-  ssd1306_Fill(Black);
-  ssd1306_TestArc();
-  HAL_Delay(1000);
-  ssd1306_Fill(Black);
-  ssd1306_TestCircle();
-  HAL_Delay(1000);
-  ssd1306_TestDrawBitmap();
-  HAL_Delay(1000);
+  // HAL_Delay(1000);
+  // ssd1306_Fill(Black);
+  // ssd1306_TestPolyline();
+  // HAL_Delay(1000);
+  // ssd1306_Fill(Black);
+  // ssd1306_TestArc();
+  // HAL_Delay(1000);
+  // ssd1306_Fill(Black);
+  // ssd1306_TestCircle();
+  // HAL_Delay(1000);
+  // ssd1306_TestDrawBitmap();
+  // HAL_Delay(1000);
 
   /* Wait for User push-button press */
+  ssd1306_Fill(Black);
+  ssd1306_SetCursor(0, SSD1306_HEIGHT - 20);
+  ssd1306_WriteString("Press button", Font_7x10, White);
+  ssd1306_SetCursor(0, SSD1306_HEIGHT - 10);
+  ssd1306_WriteString("     to start...", Font_7x10, White);
+  // Show some CORDIC calculations of sine
+  float val[] = {0.0f, 0.25f * PI, 0.5f * PI, 0.75f * PI, 1.0f * PI};
+  float res_sin[5];
+  float res_cos[5];
+  HAL_StatusTypeDef res_status[5];
+  for (int i = 0; i < 5; i++) {
+    res_status[i] = cordic_compute_sin_cos(val[i], &res_sin[i], &res_cos[i]);
+    ssd1306_SetCursor(i*10, 0);
+    ssd1306_WriteChar('0'+i, Font_7x10, White);
+    ssd1306_SetCursor(i*10, 10);
+    ssd1306_WriteChar(res_status[i] == HAL_OK ? '1' : 'x', Font_7x10, White);
+  }
+  ssd1306_UpdateScreen();
   WaitForUserButtonPress();
+  ssd1306_Fill(White);
+  ssd1306_UpdateScreen();
+
+  
 
   /* Turn-off LED4 */
   LED_Off();
 
-  /* Set DMA transfer addresses of source and destination */
-  LL_DMA_ConfigAddresses(DMA1,
-                         LL_DMA_CHANNEL_3,
-                         (uint32_t)&WaveformSine_12bits_32samples,
-                         LL_DAC_DMA_GetRegAddr(DAC1, LL_DAC_CHANNEL_1, LL_DAC_DMA_REG_DATA_12BITS_RIGHT_ALIGNED),
-                         LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
   
-  /* Set DMA transfer size */
-  LL_DMA_SetDataLength(DMA1,
-                       LL_DMA_CHANNEL_3,
-                       WAVEFORM_SAMPLES_SIZE);
+  // /* Set DMA transfer addresses of source and destination */
+  // LL_DMA_ConfigAddresses(DMA1,
+  //                        LL_DMA_CHANNEL_3,
+  //                        (uint32_t)&WaveformSine_12bits_32samples,
+  //                        LL_DAC_DMA_GetRegAddr(DAC1, LL_DAC_CHANNEL_1, LL_DAC_DMA_REG_DATA_12BITS_RIGHT_ALIGNED),
+  //                        LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
   
-  /* Enable DMA transfer interruption: transfer error */
-  LL_DMA_EnableIT_TE(DMA1,
-                     LL_DMA_CHANNEL_3);
+  // /* Set DMA transfer size */
+  // LL_DMA_SetDataLength(DMA1,
+  //                      LL_DMA_CHANNEL_3,
+  //                      WAVEFORM_SAMPLES_SIZE);
+  
+  // HAL_DMA_Start(&hdma_adc1, (uint32_t)&WaveformSine_12bits_32samples, DAC1_CHANNEL_1, WAVEFORM_SAMPLES_SIZE);
+  
+  // /* Enable DMA transfer interruption: transfer error */
+  // LL_DMA_EnableIT_TE(DMA1,
+  //                    LL_DMA_CHANNEL_3);
   
   /* Note: In this example, the only DMA interruption activated is            */
   /*       transfer error.                                                     */
@@ -260,8 +293,8 @@ int main(void)
   
   /* Activation of DMA */
   /* Enable the DMA transfer */
-  LL_DMA_EnableChannel(DMA1,
-                       LL_DMA_CHANNEL_3);
+  // LL_DMA_EnableChannel(DMA1,
+  //                      LL_DMA_CHANNEL_3);
 
   /* Set DAC mode sample-and-hold timings */
   // LL_DAC_SetSampleAndHoldSampleTime (DAC1, LL_DAC_CHANNEL_1, 0x3FF);
@@ -279,7 +312,9 @@ int main(void)
 
   /* Activation of Timer */
   /* Enable counter */
-  LL_TIM_EnableCounter(TIM6);
+  // LL_TIM_EnableCounter(TIM6);
+  // HAL_TIM_Base_Start_DMA(&htim7, WaveformSine_12bits_32samples, WAVEFORM_SAMPLES_SIZE);
+  HAL_TIM_Base_Start(&htim6);
 
   /* Activation of DAC channel */
   Activate_DAC();
@@ -366,7 +401,9 @@ void Activate_DAC(void)
   __IO uint32_t wait_loop_index = 0;
   
   /* Enable DAC channel */
-  LL_DAC_Enable(DAC1, LL_DAC_CHANNEL_1);
+  // LL_DAC_Enable(DAC1, LL_DAC_CHANNEL_1);
+  // HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);
+  HAL_DAC_Start_DMA(&hdac1, DAC_CHANNEL_1, (uint32_t *)WaveformSine_12bits_32samples, WAVEFORM_SAMPLES_SIZE, DAC_ALIGN_12B_R);
   
   /* Delay for DAC channel voltage settling time from DAC channel startup.    */
   /* Compute number of CPU cycles to wait for, from delay in us.              */
@@ -453,7 +490,8 @@ void DacUnderrunError_Callback(void)
 void LED_On(void)
 {
   /* Turn LED4 on */
-  LL_GPIO_SetOutputPin(LED2_GPIO_Port, LED2_Pin);
+  // LL_GPIO_SetOutputPin(LED2_GPIO_Port, LED2_Pin); //TODO: deleteme
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
 }
 
 /**
@@ -464,7 +502,8 @@ void LED_On(void)
 void LED_Off(void)
 {
   /* Turn LED4 off */
-  LL_GPIO_ResetOutputPin(LED2_GPIO_Port, LED2_Pin);
+  // LL_GPIO_ResetOutputPin(LED2_GPIO_Port, LED2_Pin); //TODO: deleteme
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
 }
 
 /**
@@ -479,13 +518,15 @@ void LED_Off(void)
 void LED_Blinking(uint32_t Period)
 {
   /* Turn LED4 on */
-  LL_GPIO_SetOutputPin(LED2_GPIO_Port, LED2_Pin);
+  // LL_GPIO_SetOutputPin(LED2_GPIO_Port, LED2_Pin); //TODO: deleteme (not needed)
   
   /* Toggle IO in an infinite loop */
   while (1)
   {
-    LL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-    LL_mDelay(Period);
+    // LL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin); //TODO: deleteme
+    // LL_mDelay(Period);
+    HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+    HAL_Delay(Period);
   }
 }
 
@@ -498,8 +539,10 @@ void WaitForUserButtonPress(void)
 {
   while (ubButtonPress == 0)
   {
-    LL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-    LL_mDelay(LED_BLINK_FAST);
+    // LL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin); // TODO: deleteme
+    // LL_mDelay(LED_BLINK_FAST);
+    HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+    HAL_Delay(LED_BLINK_FAST);
   }
   ubButtonPress = 0;
 }
@@ -525,14 +568,15 @@ void TIM_PrescalerReloadCalculation(void)
   /* Retrieve timer clock source frequency */
   /* If APB1 prescaler is different of 1, timers have a factor x2 on their    */
   /* clock source.                                                            */
-  if (LL_RCC_GetAPB1Prescaler() == LL_RCC_APB1_DIV_1)
-  {
-    timer_clock_frequency = __LL_RCC_CALC_PCLK1_FREQ(SystemCoreClock, LL_RCC_GetAPB1Prescaler());
-  }
-  else
-  {
-    timer_clock_frequency = (__LL_RCC_CALC_PCLK1_FREQ(SystemCoreClock, LL_RCC_GetAPB1Prescaler()) * 2);
-  }
+  // if (LL_RCC_GetAPB1Prescaler() == LL_RCC_APB1_DIV_1)
+  // {
+  //   timer_clock_frequency = __LL_RCC_CALC_PCLK1_FREQ(SystemCoreClock, LL_RCC_GetAPB1Prescaler());
+  // }
+  // else
+  // {
+  //   timer_clock_frequency = (__LL_RCC_CALC_PCLK1_FREQ(SystemCoreClock, LL_RCC_GetAPB1Prescaler()) * 2);
+  // }
+  timer_clock_frequency = HAL_RCC_GetPCLK1Freq();
   
   /* Timer prescaler calculation */
   /* (computation for timer 16 bits, additional + 1 to round the prescaler up) */
@@ -551,7 +595,7 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
- 
+  LED_Blinking(LED_BLINK_ERROR);
   /* USER CODE END Error_Handler_Debug */
 }
 
