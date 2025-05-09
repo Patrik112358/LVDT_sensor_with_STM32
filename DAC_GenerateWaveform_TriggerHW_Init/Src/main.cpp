@@ -35,6 +35,7 @@
 #include "ssd1306_tests.h"
 #include <stm32g4xx_ll_dac.h>
 #include "goertzel.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -164,6 +165,7 @@ void LED_Off(void);
 void LED_Blinking(uint32_t Period);
 void WaitForUserButtonPress(void);
 void TIM_PrescalerReloadCalculation(void);
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
 
 /* USER CODE END PFP */
 
@@ -219,6 +221,8 @@ int main(void)
   ssd1306_Init();
   // ssd1306_TestAll();
   ssd1306_TestRectangleInvert();
+  HAL_Delay(1000);
+  // ssd1306_TestFPS();
   // HAL_Delay(1000);
   // ssd1306_Fill(Black);
   // ssd1306_TestPolyline();
@@ -251,8 +255,13 @@ int main(void)
     ssd1306_WriteChar(res_status[i] == HAL_OK ? '1' : 'x', Font_7x10, White);
   }
   ssd1306_UpdateScreen();
+  printf("\e[3J\e[2J\e[H"); // Clear screen and move cursor to home position
+  printf("\033[3J\033[2J\033[H"); // Clear screen and move cursor to home position
+  printf("Please press button to start...\r\n");
   WaitForUserButtonPress();
-  ssd1306_Fill(White);
+  printf("Operation started\r\n");
+  ssd1306_InvertRectangle(0, 0, SSD1306_WIDTH-1, SSD1306_HEIGHT-1);
+  // ssd1306_Fill(White);
   ssd1306_UpdateScreen();
 
   
@@ -577,6 +586,15 @@ void TIM_PrescalerReloadCalculation(void)
   timer_prescaler = ((timer_clock_frequency / (WAVEFORM_TIMER_PRESCALER_MAX_VALUE * WAVEFORM_TIMER_FREQUENCY_RANGE_MIN)) +1);
   /* Timer reload calculation */
   timer_reload = (timer_clock_frequency / (timer_prescaler * WAVEFORM_TIMER_FREQUENCY));
+}
+
+PUTCHAR_PROTOTYPE
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the USART1 and Loop until the end of transmission */
+  HAL_UART_Transmit(&hlpuart1, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+  return ch;
 }
 
 /* USER CODE END 4 */

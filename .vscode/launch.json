@@ -31,6 +31,7 @@
             /* If you use external loader, add additional arguments */
             //"serverArgs": ["--extload", "path/to/ext/loader.stldr"],
             "showDevDebugOutput": "raw",
+            // "BMPGDBSerialPort": "/dev/ttyACM0", // If you use BMP, set the serial port here
         },
         {
             "name": "Attach to Microcontroller - ST-Link",
