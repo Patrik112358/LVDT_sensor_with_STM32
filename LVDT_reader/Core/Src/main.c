@@ -52,6 +52,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+__IO uint8_t ubButtonPress = 0;
+
 uint32_t tim6_prescaler = 0;
 uint32_t tim6_period = 65535;
 uint32_t tim7_prescaler = 0;
@@ -112,8 +114,10 @@ int main(void)
   MX_USART1_UART_Init();
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
-  printf("Hello World!\n");
   DEBUG("Peripherals initialized.\n");
+  WARN("Please press button to start...\n");
+  WaitForUserButtonPress();
+  INFO("Starting operation.\n");
   LVDT_Start();
   /* USER CODE END 2 */
 
@@ -168,6 +172,94 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+/**
+ * @brief  Wait for User push-button press to start transfer.
+ * @param  None
+ * @retval None
+ */
+void WaitForUserButtonPress(void)
+{
+  while(ubButtonPress == 0)
+  {
+    // LL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin); // TODO: deleteme
+    // LL_mDelay(LED_BLINK_FAST);
+    HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+    HAL_Delay(LED_BLINK_FAST);
+  }
+  ubButtonPress = 0;
+}
+
+
+/**
+ * @brief  Turn-on LED4.
+ * @param  None
+ * @retval None
+ */
+void LED_On(void)
+{
+  /* Turn LED4 on */
+  // LL_GPIO_SetOutputPin(LED2_GPIO_Port, LED2_Pin); //TODO: deleteme
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_SET);
+}
+
+/**
+  * @brief  Turn-off LED4.
+  * @param  None
+  * @retval None
+  */
+void LED_Off(void)
+{
+  /* Turn LED4 off */
+  // LL_GPIO_ResetOutputPin(LED2_GPIO_Port, LED2_Pin); //TODO: deleteme
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
+}
+
+/**
+  * @brief  Set LED4 to Blinking mode for an infinite loop (toggle period based on value provided as input parameter).
+  * @param  Period : Period of time (in ms) between each toggling of LED
+  *   This parameter can be user defined values. Pre-defined values used in that example are :
+  *     @arg LED_BLINK_FAST : Fast Blinking
+  *     @arg LED_BLINK_SLOW : Slow Blinking
+  *     @arg LED_BLINK_ERROR : Error specific Blinking
+  * @retval None
+  */
+void LED_Blinking(uint32_t Period)
+{
+  /* Turn LED4 on */
+  // LL_GPIO_SetOutputPin(LED2_GPIO_Port, LED2_Pin); //TODO: deleteme (not needed)
+
+  /* Toggle IO in an infinite loop */
+  while(1)
+  {
+    // LL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin); //TODO: deleteme
+    // LL_mDelay(Period);
+    HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
+    HAL_Delay(Period);
+  }
+}
+
+/**
+ * @brief  Function to manage IRQ Handler
+ * @param  None
+ * @retval None
+ */
+void UserButton_Callback(void)
+{
+  /* On the first press on user button, update only user button variable      */
+  /* to manage waiting function.                                              */
+  if(ubButtonPress == 0)
+  {
+    /* Update User push-button variable : to be checked in waiting loop in main program */
+    ubButtonPress = 1;
+  }
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  if(GPIO_Pin == USER_BUTTON_Pin) { UserButton_Callback(); }
+}
+
 PUTCHAR_PROTOTYPE
 {
   /* Place your implementation of fputc here */

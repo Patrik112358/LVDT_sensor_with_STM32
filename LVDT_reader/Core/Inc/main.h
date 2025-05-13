@@ -50,14 +50,22 @@ extern "C"
 
   /* Exported macro ------------------------------------------------------------*/
   /* USER CODE BEGIN EM */
-
+  /**
+ * @brief Toggle periods for various blinking modes
+ */
+#define LED_BLINK_FAST  200
+#define LED_BLINK_SLOW  500
+#define LED_BLINK_ERROR 1000
   /* USER CODE END EM */
 
   /* Exported functions prototypes ---------------------------------------------*/
   void Error_Handler(void);
 
-/* USER CODE BEGIN EFP */
-
+  /* USER CODE BEGIN EFP */
+  void LED_On(void);
+  void LED_Off(void);
+  void LED_Blinking(uint32_t Period);
+  void WaitForUserButtonPress(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
