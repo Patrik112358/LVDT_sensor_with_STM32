@@ -35,7 +35,7 @@ void MX_DAC1_Init(void)
 
   /* USER CODE END DAC1_Init 0 */
 
-  DAC_ChannelConfTypeDef sConfig = {0};
+  DAC_ChannelConfTypeDef sConfig = { 0 };
 
   /* USER CODE BEGIN DAC1_Init 1 */
 
@@ -44,10 +44,7 @@ void MX_DAC1_Init(void)
   /** DAC Initialization
   */
   hdac1.Instance = DAC1;
-  if (HAL_DAC_Init(&hdac1) != HAL_OK)
-  {
-    Error_Handler();
-  }
+  if(HAL_DAC_Init(&hdac1) != HAL_OK) { Error_Handler(); }
 
   /** DAC channel OUT1 config
   */
@@ -60,25 +57,21 @@ void MX_DAC1_Init(void)
   sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
   sConfig.DAC_ConnectOnChipPeripheral = DAC_CHIPCONNECT_EXTERNAL;
   sConfig.DAC_UserTrimming = DAC_TRIMMING_FACTORY;
-  if (HAL_DAC_ConfigChannel(&hdac1, &sConfig, DAC_CHANNEL_1) != HAL_OK)
-  {
-    Error_Handler();
-  }
+  if(HAL_DAC_ConfigChannel(&hdac1, &sConfig, DAC_CHANNEL_1) != HAL_OK) { Error_Handler(); }
   /* USER CODE BEGIN DAC1_Init 2 */
 
   /* USER CODE END DAC1_Init 2 */
-
 }
 
 void HAL_DAC_MspInit(DAC_HandleTypeDef* dacHandle)
 {
 
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
-  if(dacHandle->Instance==DAC1)
+  GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+  if(dacHandle->Instance == DAC1)
   {
-  /* USER CODE BEGIN DAC1_MspInit 0 */
+    /* USER CODE BEGIN DAC1_MspInit 0 */
 
-  /* USER CODE END DAC1_MspInit 0 */
+    /* USER CODE END DAC1_MspInit 0 */
     /* DAC1 clock enable */
     __HAL_RCC_DAC1_CLK_ENABLE();
 
@@ -102,27 +95,24 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef* dacHandle)
     hdma_dac1_ch1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
     hdma_dac1_ch1.Init.Mode = DMA_CIRCULAR;
     hdma_dac1_ch1.Init.Priority = DMA_PRIORITY_HIGH;
-    if (HAL_DMA_Init(&hdma_dac1_ch1) != HAL_OK)
-    {
-      Error_Handler();
-    }
+    if(HAL_DMA_Init(&hdma_dac1_ch1) != HAL_OK) { Error_Handler(); }
 
-    __HAL_LINKDMA(dacHandle,DMA_Handle1,hdma_dac1_ch1);
+    __HAL_LINKDMA(dacHandle, DMA_Handle1, hdma_dac1_ch1);
 
-  /* USER CODE BEGIN DAC1_MspInit 1 */
+    /* USER CODE BEGIN DAC1_MspInit 1 */
 
-  /* USER CODE END DAC1_MspInit 1 */
+    /* USER CODE END DAC1_MspInit 1 */
   }
 }
 
 void HAL_DAC_MspDeInit(DAC_HandleTypeDef* dacHandle)
 {
 
-  if(dacHandle->Instance==DAC1)
+  if(dacHandle->Instance == DAC1)
   {
-  /* USER CODE BEGIN DAC1_MspDeInit 0 */
+    /* USER CODE BEGIN DAC1_MspDeInit 0 */
 
-  /* USER CODE END DAC1_MspDeInit 0 */
+    /* USER CODE END DAC1_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_DAC1_CLK_DISABLE();
 
@@ -133,9 +123,9 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* dacHandle)
 
     /* DAC1 DMA DeInit */
     HAL_DMA_DeInit(dacHandle->DMA_Handle1);
-  /* USER CODE BEGIN DAC1_MspDeInit 1 */
+    /* USER CODE BEGIN DAC1_MspDeInit 1 */
 
-  /* USER CODE END DAC1_MspDeInit 1 */
+    /* USER CODE END DAC1_MspDeInit 1 */
   }
 }
 

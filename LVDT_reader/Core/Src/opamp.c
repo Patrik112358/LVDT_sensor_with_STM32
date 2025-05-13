@@ -45,14 +45,10 @@ void MX_OPAMP1_Init(void)
   hopamp1.Init.InternalOutput = ENABLE;
   hopamp1.Init.TimerControlledMuxmode = OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE;
   hopamp1.Init.UserTrimming = OPAMP_TRIMMING_FACTORY;
-  if (HAL_OPAMP_Init(&hopamp1) != HAL_OK)
-  {
-    Error_Handler();
-  }
+  if(HAL_OPAMP_Init(&hopamp1) != HAL_OK) { Error_Handler(); }
   /* USER CODE BEGIN OPAMP1_Init 2 */
 
   /* USER CODE END OPAMP1_Init 2 */
-
 }
 /* OPAMP2 init function */
 void MX_OPAMP2_Init(void)
@@ -72,25 +68,21 @@ void MX_OPAMP2_Init(void)
   hopamp2.Init.InternalOutput = ENABLE;
   hopamp2.Init.TimerControlledMuxmode = OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE;
   hopamp2.Init.UserTrimming = OPAMP_TRIMMING_FACTORY;
-  if (HAL_OPAMP_Init(&hopamp2) != HAL_OK)
-  {
-    Error_Handler();
-  }
+  if(HAL_OPAMP_Init(&hopamp2) != HAL_OK) { Error_Handler(); }
   /* USER CODE BEGIN OPAMP2_Init 2 */
 
   /* USER CODE END OPAMP2_Init 2 */
-
 }
 
 void HAL_OPAMP_MspInit(OPAMP_HandleTypeDef* opampHandle)
 {
 
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
-  if(opampHandle->Instance==OPAMP1)
+  GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+  if(opampHandle->Instance == OPAMP1)
   {
-  /* USER CODE BEGIN OPAMP1_MspInit 0 */
+    /* USER CODE BEGIN OPAMP1_MspInit 0 */
 
-  /* USER CODE END OPAMP1_MspInit 0 */
+    /* USER CODE END OPAMP1_MspInit 0 */
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
     /**OPAMP1 GPIO Configuration
@@ -101,15 +93,15 @@ void HAL_OPAMP_MspInit(OPAMP_HandleTypeDef* opampHandle)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(LVDT_SEC1_IN_GPIO_Port, &GPIO_InitStruct);
 
-  /* USER CODE BEGIN OPAMP1_MspInit 1 */
+    /* USER CODE BEGIN OPAMP1_MspInit 1 */
 
-  /* USER CODE END OPAMP1_MspInit 1 */
+    /* USER CODE END OPAMP1_MspInit 1 */
   }
-  else if(opampHandle->Instance==OPAMP2)
+  else if(opampHandle->Instance == OPAMP2)
   {
-  /* USER CODE BEGIN OPAMP2_MspInit 0 */
+    /* USER CODE BEGIN OPAMP2_MspInit 0 */
 
-  /* USER CODE END OPAMP2_MspInit 0 */
+    /* USER CODE END OPAMP2_MspInit 0 */
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
     /**OPAMP2 GPIO Configuration
@@ -120,44 +112,44 @@ void HAL_OPAMP_MspInit(OPAMP_HandleTypeDef* opampHandle)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(LVDT_SEC2_IN_GPIO_Port, &GPIO_InitStruct);
 
-  /* USER CODE BEGIN OPAMP2_MspInit 1 */
+    /* USER CODE BEGIN OPAMP2_MspInit 1 */
 
-  /* USER CODE END OPAMP2_MspInit 1 */
+    /* USER CODE END OPAMP2_MspInit 1 */
   }
 }
 
 void HAL_OPAMP_MspDeInit(OPAMP_HandleTypeDef* opampHandle)
 {
 
-  if(opampHandle->Instance==OPAMP1)
+  if(opampHandle->Instance == OPAMP1)
   {
-  /* USER CODE BEGIN OPAMP1_MspDeInit 0 */
+    /* USER CODE BEGIN OPAMP1_MspDeInit 0 */
 
-  /* USER CODE END OPAMP1_MspDeInit 0 */
+    /* USER CODE END OPAMP1_MspDeInit 0 */
 
     /**OPAMP1 GPIO Configuration
     PA1     ------> OPAMP1_VINP
     */
     HAL_GPIO_DeInit(LVDT_SEC1_IN_GPIO_Port, LVDT_SEC1_IN_Pin);
 
-  /* USER CODE BEGIN OPAMP1_MspDeInit 1 */
+    /* USER CODE BEGIN OPAMP1_MspDeInit 1 */
 
-  /* USER CODE END OPAMP1_MspDeInit 1 */
+    /* USER CODE END OPAMP1_MspDeInit 1 */
   }
-  else if(opampHandle->Instance==OPAMP2)
+  else if(opampHandle->Instance == OPAMP2)
   {
-  /* USER CODE BEGIN OPAMP2_MspDeInit 0 */
+    /* USER CODE BEGIN OPAMP2_MspDeInit 0 */
 
-  /* USER CODE END OPAMP2_MspDeInit 0 */
+    /* USER CODE END OPAMP2_MspDeInit 0 */
 
     /**OPAMP2 GPIO Configuration
     PA7     ------> OPAMP2_VINP
     */
     HAL_GPIO_DeInit(LVDT_SEC2_IN_GPIO_Port, LVDT_SEC2_IN_Pin);
 
-  /* USER CODE BEGIN OPAMP2_MspDeInit 1 */
+    /* USER CODE BEGIN OPAMP2_MspDeInit 1 */
 
-  /* USER CODE END OPAMP2_MspDeInit 1 */
+    /* USER CODE END OPAMP2_MspDeInit 1 */
   }
 }
 

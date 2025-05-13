@@ -57,6 +57,11 @@
                 "cwd": "${workspaceFolder}"
             },
             "problemMatcher": []
+        },
+        {
+            "type": "shell",
+            "label": "Format all sources",
+            "command": "${workspaceFolder}/LVDT_reader/run-formatting.sh",
         }
     ]
 }
