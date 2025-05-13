@@ -42,7 +42,10 @@ extern "C"
 
   /* Exported constants --------------------------------------------------------*/
   /* USER CODE BEGIN EC */
-
+  extern uint32_t tim6_prescaler;
+  extern uint32_t tim6_period;
+  extern uint32_t tim7_prescaler;
+  extern uint32_t tim7_period;
   /* USER CODE END EC */
 
   /* Exported macro ------------------------------------------------------------*/
@@ -58,10 +61,10 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define tim6_prescaler               0
-#define tim6_period                  65535
-#define tim7_period                  1250
-#define tim7_prescaler               0
+// #define tim6_prescaler               0
+// #define tim6_period                  65535
+// #define tim7_period                  1250
+// #define tim7_prescaler               0
 #define USER_BUTTON_Pin              GPIO_PIN_13
 #define USER_BUTTON_GPIO_Port        GPIOC
 #define LVDT_SEC1_IN_Pin             GPIO_PIN_1

@@ -31,6 +31,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "debugtools.h"
+#include "lvdt.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,7 +52,10 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+uint32_t tim6_prescaler = 0;
+uint32_t tim6_period = 65535;
+uint32_t tim7_prescaler = 0;
+uint32_t tim7_period = 1250;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -90,7 +94,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  LVDT_Init();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -110,7 +114,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   printf("Hello World!\n");
   DEBUG("Peripherals initialized.\n");
-
+  LVDT_Start();
   /* USER CODE END 2 */
 
   /* Infinite loop */
