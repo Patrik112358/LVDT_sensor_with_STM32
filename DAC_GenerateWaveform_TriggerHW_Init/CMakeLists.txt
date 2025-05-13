@@ -79,6 +79,29 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
 # This is needed for clangd to find the include paths
 # from: https://github.com/mesonbuild/meson/discussions/13003#discussion-6411490
 if(CMAKE_EXPORT_COMPILE_COMMANDS)
-    set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
-    set(CMAKE_C_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES})
+    set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES} ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+    set(CMAKE_C_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_C_STANDARD_INCLUDE_DIRECTORIES} ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES})
+endif()
+
+
+# Add -u _printf_float to the linker options
+# This is needed for printf to work with floats
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -u _printf_float")
+
+# set macro LOGLEVEL based on build type to one of:
+#   LL_DEBUG
+#   LL_INFO 
+#   LL_WARN 
+#   LL_ERROR
+#   LL_FATAL
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC LOGLEVEL=LL_DEBUG)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC LOGLEVEL=LL_WARN)
+elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC LOGLEVEL=LL_WARN)
+elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC LOGLEVEL=LL_INFO)
+else()
+    message(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
 endif()

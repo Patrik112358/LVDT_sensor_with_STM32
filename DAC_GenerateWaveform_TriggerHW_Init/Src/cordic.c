@@ -21,6 +21,7 @@
 #include "cordic.h"
 
 /* USER CODE BEGIN 0 */
+#include "debugtools.h"
 
 /* USER CODE END 0 */
 
@@ -95,9 +96,14 @@ HAL_StatusTypeDef cordic_compute_sin_cos(float angle_rad, float* sin_out, float*
 {
     CORDIC_ConfigTypeDef config;
     int32_t input_q31, output_q31[2];
-
+    
+    DEBUG_EXP("%f\n", angle_rad);
+    DEBUG_EXP("%p\n", (void*)sin_out);
+    DEBUG_EXP("%p\n", (void*)cos_out);
+    
     // Convert angle from float to Q1.31 fixed-point
     input_q31 = (int32_t)(angle_rad * (1LL << 31) / PI);  // CORDIC expects angle in [−π, π] mapped to [−1, 1)
+    DEBUG_EXP("%d\n", input_q31);
 
     // Configure CORDIC for sine/cosine
     config.Function  = CORDIC_FUNCTION_SINE;

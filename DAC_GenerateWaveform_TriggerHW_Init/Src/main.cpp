@@ -246,16 +246,25 @@ int main(void)
   float res_sin[5];
   float res_cos[5];
   HAL_StatusTypeDef res_status[5];
+  printf("\033[3J\033[2J\033[H"); // Clear screen and move cursor to home position
+  // printf("printf test\r\n");
+  // printf("printf test int 0=%d\n", 0);
+  // printf("printf test int 1=%d\n", 1);
+  // printf("printf test float 0.5=%f\n", 0.5f);
+  // printf("printf test double 0.5=%lf\n", 0.5);
+  // printf("printf test string 'test'='%s'\n", "test");
+  // printf("printf test char 'A'=%c\n", 'A');
+  // printf("printf test hex 0xa234=%x\n", 0xa234);
+  // printf("printf test hex 0xA234=%X\n", 0xa234);
   for (int i = 0; i < 5; i++) {
     res_status[i] = cordic_compute_sin_cos(val[i], &res_sin[i], &res_cos[i]);
     ssd1306_SetCursor(i*10, 0);
     ssd1306_WriteChar('0'+i, Font_7x10, White);
     ssd1306_SetCursor(i*10, 10);
     ssd1306_WriteChar(res_status[i] == HAL_OK ? '1' : 'x', Font_7x10, White);
+    printf("CORDIC calc_no=%d x=%f sin(x)=%f cos(x)=%f status=%s\n", i, val[i], res_sin[i], res_cos[i], res_status[i] == HAL_OK ? "OK" : "FAIL");
   }
   ssd1306_UpdateScreen();
-  printf("\e[3J\e[2J\e[H"); // Clear screen and move cursor to home position
-  printf("\033[3J\033[2J\033[H"); // Clear screen and move cursor to home position
   printf("Please press button to start...\r\n");
   WaitForUserButtonPress();
   printf("Operation started\r\n");
