@@ -27,15 +27,9 @@
             "serverArgs": [
                 "-m","0",
             ],
-            "preLaunchTask": "Build + Flash",
+            //"preLaunchTask": "Build + Flash"
             /* If you use external loader, add additional arguments */
             //"serverArgs": ["--extload", "path/to/ext/loader.stldr"],
-            "showDevDebugOutput": "raw",
-            "liveWatch": {
-                "enabled": true,
-                "samplesPerSecond": 4
-            }
-            // "BMPGDBSerialPort": "/dev/ttyACM0", // If you use BMP, set the serial port here
         },
         {
             "name": "Attach to Microcontroller - ST-Link",
