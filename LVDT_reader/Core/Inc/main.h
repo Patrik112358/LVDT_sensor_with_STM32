@@ -23,53 +23,52 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g4xx_hal.h"
 
-  /* Private includes ----------------------------------------------------------*/
-  /* USER CODE BEGIN Includes */
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
 
-  /* USER CODE END Includes */
+/* USER CODE END Includes */
 
-  /* Exported types ------------------------------------------------------------*/
-  /* USER CODE BEGIN ET */
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
 
-  /* USER CODE END ET */
+/* USER CODE END ET */
 
-  /* Exported constants --------------------------------------------------------*/
-  /* USER CODE BEGIN EC */
-  extern uint32_t tim6_prescaler;
-  extern uint32_t tim6_period;
-  extern uint32_t tim7_prescaler;
-  extern uint32_t tim7_period;
-  /* USER CODE END EC */
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
+extern uint32_t tim6_prescaler;
+extern uint32_t tim6_period;
+extern uint32_t tim7_prescaler;
+extern uint32_t tim7_period;
+/* USER CODE END EC */
 
-  /* Exported macro ------------------------------------------------------------*/
-  /* USER CODE BEGIN EM */
-  /**
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
+/**
  * @brief Toggle periods for various blinking modes
  */
 #define LED_BLINK_FAST  200
 #define LED_BLINK_SLOW  500
 #define LED_BLINK_ERROR 1000
-  /* USER CODE END EM */
+/* USER CODE END EM */
 
-  /* Exported functions prototypes ---------------------------------------------*/
-  void Error_Handler(void);
+/* Exported functions prototypes ---------------------------------------------*/
+void Error_Handler(void);
 
-  /* USER CODE BEGIN EFP */
-  void LED_On(void);
-  void LED_Off(void);
-  void LED_Blinking(uint32_t Period);
-  void WaitForUserButtonPress(void);
+/* USER CODE BEGIN EFP */
+void LED_On(void);
+void LED_Off(void);
+void LED_Blinking(uint32_t Period);
+void WaitForUserButtonPress(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define tim6_prescaler               249
+#define tim6_prescaler               24
 #define tim6_period                  5
 #define tim7_prescaler               249
 #define tim7_period                  4
@@ -91,9 +90,9 @@ extern "C"
 #define OLED_CS_Pin                  GPIO_PIN_14
 #define OLED_CS_GPIO_Port            GPIOB
 
-  /* USER CODE BEGIN Private defines */
+/* USER CODE BEGIN Private defines */
 
-  /* USER CODE END Private defines */
+/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

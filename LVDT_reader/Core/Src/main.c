@@ -127,8 +127,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while(1)
-  {
+  while (1) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -162,7 +161,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
-  if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) { Error_Handler(); }
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) { Error_Handler(); }
 
   /** Initializes the CPU, AHB and APB buses clocks
   */
@@ -172,7 +171,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) { Error_Handler(); }
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) { Error_Handler(); }
 }
 
 /* USER CODE BEGIN 4 */
@@ -184,8 +183,7 @@ void SystemClock_Config(void)
  */
 void WaitForUserButtonPress(void)
 {
-  while(ubButtonPress == 0)
-  {
+  while (ubButtonPress == 0) {
     // LL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin); // TODO: deleteme
     // LL_mDelay(LED_BLINK_FAST);
     HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
@@ -234,8 +232,7 @@ void LED_Blinking(uint32_t Period)
   // LL_GPIO_SetOutputPin(LED2_GPIO_Port, LED2_Pin); //TODO: deleteme (not needed)
 
   /* Toggle IO in an infinite loop */
-  while(1)
-  {
+  while (1) {
     // LL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin); //TODO: deleteme
     // LL_mDelay(Period);
     HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
@@ -252,8 +249,7 @@ void UserButton_Callback(void)
 {
   /* On the first press on user button, update only user button variable      */
   /* to manage waiting function.                                              */
-  if(ubButtonPress == 0)
-  {
+  if (ubButtonPress == 0) {
     /* Update User push-button variable : to be checked in waiting loop in main program */
     ubButtonPress = 1;
   }
@@ -266,7 +262,7 @@ void UserButton_Callback(void)
   */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-  if(GPIO_Pin == USER_BUTTON_Pin) { UserButton_Callback(); }
+  if (GPIO_Pin == USER_BUTTON_Pin) { UserButton_Callback(); }
 }
 
 PUTCHAR_PROTOTYPE
@@ -289,7 +285,7 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
-  while(1) {}
+  while (1) {}
   /* USER CODE END Error_Handler_Debug */
 }
 

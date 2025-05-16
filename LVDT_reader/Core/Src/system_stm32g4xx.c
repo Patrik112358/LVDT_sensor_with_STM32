@@ -114,17 +114,17 @@
      in Sram else user remap will be done in Flash. */
 /* #define VECT_TAB_SRAM */
 #  if defined(VECT_TAB_SRAM)
-#    define VECT_TAB_BASE_ADDRESS \
+#    define VECT_TAB_BASE_ADDRESS                                                                                      \
       SRAM_BASE /*!< Vector Table base address field.
                                                      This value must be a multiple of 0x200. */
-#    define VECT_TAB_OFFSET \
+#    define VECT_TAB_OFFSET                                                                                            \
       0x00000000U /*!< Vector Table base offset field.
                                                      This value must be a multiple of 0x200. */
 #  else
-#    define VECT_TAB_BASE_ADDRESS \
+#    define VECT_TAB_BASE_ADDRESS                                                                                      \
       FLASH_BASE /*!< Vector Table base address field.
                                                      This value must be a multiple of 0x200. */
-#    define VECT_TAB_OFFSET \
+#    define VECT_TAB_OFFSET                                                                                            \
       0x00000000U /*!< Vector Table base offset field.
                                                      This value must be a multiple of 0x200. */
 #  endif /* VECT_TAB_SRAM */
@@ -234,8 +234,7 @@ void SystemCoreClockUpdate(void)
   uint32_t tmp, pllvco, pllr, pllsource, pllm;
 
   /* Get SYSCLK source -------------------------------------------------------*/
-  switch(RCC->CFGR & RCC_CFGR_SWS)
-  {
+  switch (RCC->CFGR & RCC_CFGR_SWS) {
     case 0x04: /* HSI used as system clock source */
       SystemCoreClock = HSI_VALUE;
       break;
@@ -250,8 +249,11 @@ void SystemCoreClockUpdate(void)
          */
       pllsource = (RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC);
       pllm = ((RCC->PLLCFGR & RCC_PLLCFGR_PLLM) >> 4) + 1U;
-      if(pllsource == 0x02UL) /* HSI used as PLL clock source */ { pllvco = (HSI_VALUE / pllm); }
-      else /* HSE used as PLL clock source */ { pllvco = (HSE_VALUE / pllm); }
+      if (pllsource == 0x02UL) /* HSI used as PLL clock source */ {
+        pllvco = (HSI_VALUE / pllm);
+      } else /* HSE used as PLL clock source */ {
+        pllvco = (HSE_VALUE / pllm);
+      }
       pllvco = pllvco * ((RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> 8);
       pllr = (((RCC->PLLCFGR & RCC_PLLCFGR_PLLR) >> 25) + 1U) * 2U;
       SystemCoreClock = pllvco / pllr;

@@ -38,7 +38,7 @@ void MX_CORDIC_Init(void)
 
   /* USER CODE END CORDIC_Init 1 */
   hcordic.Instance = CORDIC;
-  if(HAL_CORDIC_Init(&hcordic) != HAL_OK) { Error_Handler(); }
+  if (HAL_CORDIC_Init(&hcordic) != HAL_OK) { Error_Handler(); }
   /* USER CODE BEGIN CORDIC_Init 2 */
 
   /* USER CODE END CORDIC_Init 2 */
@@ -47,8 +47,7 @@ void MX_CORDIC_Init(void)
 void HAL_CORDIC_MspInit(CORDIC_HandleTypeDef* cordicHandle)
 {
 
-  if(cordicHandle->Instance == CORDIC)
-  {
+  if (cordicHandle->Instance == CORDIC) {
     /* USER CODE BEGIN CORDIC_MspInit 0 */
 
     /* USER CODE END CORDIC_MspInit 0 */
@@ -63,8 +62,7 @@ void HAL_CORDIC_MspInit(CORDIC_HandleTypeDef* cordicHandle)
 void HAL_CORDIC_MspDeInit(CORDIC_HandleTypeDef* cordicHandle)
 {
 
-  if(cordicHandle->Instance == CORDIC)
-  {
+  if (cordicHandle->Instance == CORDIC) {
     /* USER CODE BEGIN CORDIC_MspDeInit 0 */
 
     /* USER CODE END CORDIC_MspDeInit 0 */

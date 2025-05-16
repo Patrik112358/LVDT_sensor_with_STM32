@@ -22,8 +22,8 @@
 
 
 typedef struct {
-    const SSD1306_Font_t* font;
-    uint8_t row_length;
+  const SSD1306_Font_t* font;
+  uint8_t               row_length;
 } UI_params_t;
 
 // extern ScreenContents_t screen_contents;

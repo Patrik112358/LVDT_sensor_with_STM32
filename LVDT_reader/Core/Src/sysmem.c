@@ -60,11 +60,10 @@ void *_sbrk(ptrdiff_t incr)
   uint8_t        *prev_heap_end;
 
   /* Initialize heap end at first call */
-  if(NULL == __sbrk_heap_end) { __sbrk_heap_end = &_end; }
+  if (NULL == __sbrk_heap_end) { __sbrk_heap_end = &_end; }
 
   /* Protect heap from growing into the reserved MSP stack */
-  if(__sbrk_heap_end + incr > max_heap)
-  {
+  if (__sbrk_heap_end + incr > max_heap) {
     errno = ENOMEM;
     return (void *)-1;
   }

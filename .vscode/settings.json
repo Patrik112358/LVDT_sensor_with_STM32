@@ -1,4 +1,4 @@
 {
     "cmake.sourceDirectory": "/home/patrik/2024-FEL-B3-LS/SME/semestralka/full_project_try2-cubemx_from_scratch/LVDT_reader",
-    "cortex-debug.variableUseNaturalFormat": false
+    "cortex-debug.variableUseNaturalFormat": true
 }
