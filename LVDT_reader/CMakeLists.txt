@@ -48,11 +48,17 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
+    ${CMAKE_SOURCE_DIR}/Core/Src/lvdt.c
+    ${CMAKE_SOURCE_DIR}/Core/Src/user_interface.c
+    ${CMAKE_SOURCE_DIR}/Libs/ssd1306/ssd1306.c
+    ${CMAKE_SOURCE_DIR}/Libs/ssd1306/ssd1306_fonts.c
+    ${CMAKE_SOURCE_DIR}/Libs/ssd1306/ssd1306_tests.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
+    ${CMAKE_SOURCE_DIR}/Libs/ssd1306
 )
 
 # Add project symbols (macros)

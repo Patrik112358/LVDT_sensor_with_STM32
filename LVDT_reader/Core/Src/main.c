@@ -32,6 +32,7 @@
 /* USER CODE BEGIN Includes */
 #include "debugtools.h"
 #include "lvdt.h"
+#include "user_interface.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,10 +55,10 @@
 /* USER CODE BEGIN PV */
 __IO uint8_t ubButtonPress = 0;
 
-uint32_t tim6_prescaler = 0;
-uint32_t tim6_period = 65535;
-uint32_t tim7_prescaler = 0;
-uint32_t tim7_period = 1250;
+// uint32_t tim6_prescaler = 0;
+// uint32_t tim6_period = 65535;
+// uint32_t tim7_prescaler = 0;
+// uint32_t tim7_period = 1250;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -114,10 +115,13 @@ int main(void)
   MX_USART1_UART_Init();
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
-  DEBUG("Peripherals initialized.\n");
-  WARN("Please press button to start...\n");
+  DEBUG_PRINT("Peripherals initialized.\n");
+  UI_Init();
+  DEBUG_PRINT("UI initialized.\n");
+  WARN_PRINT("Please press button to start...\n");
   WaitForUserButtonPress();
-  INFO("Starting operation.\n");
+  INFO_PRINT("Starting operation.\n");
+  UI_Update();
   LVDT_Start();
   /* USER CODE END 2 */
 
@@ -255,6 +259,11 @@ void UserButton_Callback(void)
   }
 }
 
+/**
+  * @brief  EXTI line detection callback.
+  * @param  GPIO_Pin: Specifies the port pin connected to corresponding EXTI line.
+  * @retval None
+  */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if(GPIO_Pin == USER_BUTTON_Pin) { UserButton_Callback(); }

@@ -22,31 +22,31 @@
 #define __TIM_H__
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-  /* USER CODE BEGIN Includes */
+/* USER CODE BEGIN Includes */
 
-  /* USER CODE END Includes */
+/* USER CODE END Includes */
 
-  extern TIM_HandleTypeDef htim6;
+extern TIM_HandleTypeDef htim6;
 
-  extern TIM_HandleTypeDef htim7;
+extern TIM_HandleTypeDef htim7;
 
-  /* USER CODE BEGIN Private defines */
+/* USER CODE BEGIN Private defines */
 
-  /* USER CODE END Private defines */
+/* USER CODE END Private defines */
 
-  void MX_TIM6_Init(void);
-  void MX_TIM7_Init(void);
+void MX_TIM6_Init(void);
+void MX_TIM7_Init(void);
 
-  /* USER CODE BEGIN Prototypes */
+/* USER CODE BEGIN Prototypes */
+float Get_Timer_Frequency(TIM_HandleTypeDef* tim_handle);
 
-  /* USER CODE END Prototypes */
+/* USER CODE END Prototypes */
 
 #ifdef __cplusplus
 }

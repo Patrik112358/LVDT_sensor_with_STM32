@@ -5,8 +5,9 @@
 #include <stm32g4xx_ll_dac.h>
 #include "main.h"
 
-#define ADC_BUFFER_SIZE 512
-#define DAC_BUFFER_SIZE 32
+#define ADC_BUFFER_SIZE         512
+#define DAC_BUFFER_SIZE         100
+#define PRIMARY_DRIVE_FREQUENCY 2000
 
 extern const uint16_t DAC_buffer_sine[DAC_BUFFER_SIZE];
 extern uint32_t       ADC_buffer[ADC_BUFFER_SIZE];
@@ -27,7 +28,7 @@ extern uint32_t       ADC_buffer[ADC_BUFFER_SIZE];
 /* Waveform amplitude (unit: mV) */
 #define WAVEFORM_AMPLITUDE                 (VDDA_APPLI)
 /* Waveform amplitude (unit: Hz) */
-#define WAVEFORM_FREQUENCY                 ((uint32_t)1000)
+#define WAVEFORM_FREQUENCY                 ((uint32_t)PRIMARY_DRIVE_FREQUENCY)
 /* Size of array containing DAC waveform samples */
 #define WAVEFORM_SAMPLES_SIZE              (sizeof(DAC_buffer_sine) / sizeof(typeof(DAC_buffer_sine[0])))
 
@@ -40,7 +41,6 @@ extern uint32_t       ADC_buffer[ADC_BUFFER_SIZE];
 #define WAVEFORM_TIMER_FREQUENCY_RANGE_MIN ((uint32_t)1)
 /* Timer prescaler maximum value (0xFFFF for a timer 16 bits) */
 #define WAVEFORM_TIMER_PRESCALER_MAX_VALUE ((uint32_t)0xFFFF - 1)
-
 
 
 void LVDT_Init(void);

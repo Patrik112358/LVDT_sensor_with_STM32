@@ -69,12 +69,13 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-// #define tim6_prescaler               0
-// #define tim6_period                  65535
-// #define tim7_period                  1250
-// #define tim7_prescaler               0
+#define tim6_prescaler               249
+#define tim6_period                  5
+#define tim7_prescaler               249
+#define tim7_period                  4
 #define USER_BUTTON_Pin              GPIO_PIN_13
 #define USER_BUTTON_GPIO_Port        GPIOC
+#define USER_BUTTON_EXTI_IRQn        EXTI15_10_IRQn
 #define LVDT_SEC1_IN_Pin             GPIO_PIN_1
 #define LVDT_SEC1_IN_GPIO_Port       GPIOA
 #define LVDT_PRIMARY_DRIVE_Pin       GPIO_PIN_4

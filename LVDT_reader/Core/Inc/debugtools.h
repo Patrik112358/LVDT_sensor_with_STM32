@@ -2,6 +2,8 @@
 #define DEBUGTOOLS_H
 #include <stdio.h> // IWYU pragma: export
 
+#define BUILD_BUG_ON(condition) extern char _BUILD_BUG_ON_[1-2*!!(condition)]
+
 #ifndef LOG_WITH_LOCKS
 #  define LOG_WITHOUT_LOCKS 1
 #endif
@@ -111,15 +113,15 @@
 #define LOG_EXPRESSION(use_location_header, loglevel, format, ...) \
   LOG(use_location_header, LL_WARN, #__VA_ARGS__ " = " format, __VA_ARGS__)
 
-#define DEBUG(format, ...)       LOG(1, LL_DEBUG, format, ##__VA_ARGS__)
+#define DEBUG_PRINT(format, ...)       LOG(1, LL_DEBUG, format, ##__VA_ARGS__)
 #define DEBUG_NOLOC(format, ...) LOG(0, LL_DEBUG, format, ##__VA_ARGS__)
 #define DEBUG_EXP(format, ...)   DEBUG_NOLOC(#__VA_ARGS__ " = " format, __VA_ARGS__)
 
-#define INFO(format, ...)        LOG(1, LL_INFO, format, ##__VA_ARGS__)
+#define INFO_PRINT(format, ...)        LOG(1, LL_INFO, format, ##__VA_ARGS__)
 
-#define WARN(format, ...)        LOG(1, LL_WARN, format, ##__VA_ARGS__)
+#define WARN_PRINT(format, ...)        LOG(1, LL_WARN, format, ##__VA_ARGS__)
 
-#define ERROR(format, ...)       LOG(1, LL_ERROR, format, ##__VA_ARGS__)
+#define ERROR_PRINT(format, ...)       LOG(1, LL_ERROR, format, ##__VA_ARGS__)
 
 #define FATAL(format, ...)       LOG(1, LL_FATAL, format, ##__VA_ARGS__)
 
