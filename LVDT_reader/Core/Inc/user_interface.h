@@ -38,6 +38,8 @@ void UI_Update(void);
 
 // Sets the primary drive frequency
 void UI_SetPrimaryDriveFrequency(float frequency);
+// Sets the secondary sampling frequency
+void UI_SetSecondarySamplingFrequency(float frequency);
 // Sets the 1st secondary windings amplitude
 void UI_SetSec1Amplitude(float amplitude);
 // Sets the 2nd secondary windings amplitude
@@ -46,6 +48,8 @@ void UI_SetSec2Amplitude(float amplitude);
 void UI_SetPosition(float position);
 // Sets the ratio of sec1 and sec2 amplitudes
 void UI_SetRatio(float ratio);
+// Sets the number of halfbuffers skipped (sampled but not processed)
+void UI_SetNHalfbuffersSkipped(uint32_t n_halfbuffers);
 
 // Waits for user button press
 UI_params_t UI_GetParams(void);

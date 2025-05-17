@@ -1,4 +1,5 @@
 #include "user_interface.h"
+#include <stdint.h>
 #include <stdio.h>
 #include "debugtools.h"
 #include "ssd1306.h"
@@ -25,6 +26,7 @@ const char empty_row[WIDTH_CHARS + 1] = "                     "; // +1 for null 
 
 typedef struct {
   char       row[WIDTH_CHARS + 1]; // +1 for null terminator
+  const char original_row[WIDTH_CHARS + 1]; // +1 for null terminator
   const char fmt[10];
   char*      updatable_text_ptr;
 } ScreenRowSpec_t;
@@ -34,11 +36,13 @@ typedef struct {
 // Format: X(row_text, format_string, data_type, field_name)
 #define DISPLAYABLE_ITEMS(X)                                                                                           \
   /* =====================                                                                                          */ \
-  X("prim freq   ##.### Hz", "%06.3f", float, primary_drive_frequency)                                                 \
-  X("sec1 amp    ##.### V ", "%06.3f", float, sec1_amplitude)                                                          \
-  X("sec2 amp    ##.### V ", "%06.3f", float, sec2_amplitude)                                                          \
+  X("primDrvFrq ###.###kHz", "% 7.3f", float, primary_drive_frequency)                                                 \
+  X("secSampFrq ###.###kHz", "% 7.3f", float, secondary_sampling_frequency)                                            \
+  X("sec1 amp   ###.### kV", "% 7.3f", float, sec1_amplitude)                                                          \
+  X("sec2 amp   ###.### kV", "% 7.3f", float, sec2_amplitude)                                                          \
   X("ratio      ###.### - ", "%07.3f", float, ratio)                                                                   \
   X("position     ###.# mm", "%05.1f", double, position)                                                               \
+  X("bufs skip'd ###### - ", "% 6u", uint32_t, n_halfbuffers_skipped)                                                  \
   /* =====================                                                                                          */
 
 typedef enum {
@@ -52,9 +56,10 @@ typedef enum {
 typedef struct {
   ScreenRowSpec_t row_spec;
   union {
-    float  val_float;
-    double val_double;
-    char   val[sizeof(double)];
+    float    val_float;
+    double   val_double;
+    uint32_t val_uint32_t;
+    char     val[sizeof(double)];
   };
 } DisplayableItem_t;
 
@@ -63,9 +68,10 @@ typedef struct {
   typedef struct {                                                                                                     \
     ScreenRowSpec_t row_spec;                                                                                          \
     union {                                                                                                            \
-      float  val_float;                                                                                                \
-      double val_double;                                                                                               \
-      type   val;                                                                                                      \
+      float    val_float;                                                                                              \
+      double   val_double;                                                                                             \
+      uint32_t val_uint32_t;                                                                                           \
+      type     val;                                                                                                    \
     };                                                                                                                 \
   } DisplayableItem_##type##_t;
 
@@ -73,6 +79,7 @@ DEFINE_ROW_OF_TYPE(float)
 BUILD_BUG_ON(sizeof(DisplayableItem_t) != sizeof(DisplayableItem_float_t));
 DEFINE_ROW_OF_TYPE(double)
 BUILD_BUG_ON(sizeof(DisplayableItem_t) != sizeof(DisplayableItem_double_t));
+DEFINE_ROW_OF_TYPE(uint32_t)
 
 
 // Define the struct fields using the X-macro
@@ -87,17 +94,21 @@ typedef union {
 
 // Initialize the structure using the X-macro
 AllDisplayableItems_t all_displayable_items = {
-#define INIT_ROW(row_text, format, type, name) .name = { .row_spec = { .row = row_text, .fmt = format }, .val = -0.0f },
+#define INIT_ROW(row_text, format, type, name)                                                                         \
+  .name = { .row_spec = { .row = row_text, .original_row = row_text, .fmt = format }, .val = (type) - 0.0f },
   DISPLAYABLE_ITEMS(INIT_ROW)
 #undef INIT_ROW
 };
 
 DisplayableItem_t* screen_rows[HEIGHT_CHARS] = {
-  [1] = (DisplayableItem_t*)&all_displayable_items.primary_drive_frequency,
+  (DisplayableItem_t*)&all_displayable_items.primary_drive_frequency,
+  (DisplayableItem_t*)&all_displayable_items.secondary_sampling_frequency,
   (DisplayableItem_t*)&all_displayable_items.sec1_amplitude,
   (DisplayableItem_t*)&all_displayable_items.sec2_amplitude,
   (DisplayableItem_t*)&all_displayable_items.ratio,
   (DisplayableItem_t*)&all_displayable_items.position,
+  NULL,
+  (DisplayableItem_t*)&all_displayable_items.n_halfbuffers_skipped,
 };
 
 
@@ -170,9 +181,10 @@ void UI_UpdateDisplayableItems(void)
   max_chars = sizeof(row->row_spec.row) - (row->row_spec.updatable_text_ptr - row->row_spec.row);                      \
   ret = snprintf(row->row_spec.updatable_text_ptr, max_chars, row->row_spec.fmt, row->val_##data_type);                \
   if (ret < 0 || ret >= (int)max_chars) {                                                                              \
-    WARN_PRINT("snprintf failed when updating item `" #field_name "`");                                                \
+    if (0) DEBUG_PRINT("snprintf failed when updating item `" #field_name "`\n");                                      \
   } else {                                                                                                             \
-    row->row_spec.updatable_text_ptr[ret] = ' ';                                                                       \
+    row->row_spec.updatable_text_ptr[ret] =                                                                            \
+        row->row_spec.original_row[row->row_spec.updatable_text_ptr - row->row_spec.row + ret];                        \
   }
 
   DISPLAYABLE_ITEMS(UPDATE_DISPLAYABLE_ITEMS)
@@ -188,17 +200,22 @@ void UI_Update(void)
 
 void UI_SetPrimaryDriveFrequency(float frequency)
 {
-  all_displayable_items.primary_drive_frequency.val = frequency;
+  all_displayable_items.primary_drive_frequency.val = frequency / 1000.0f;
+}
+
+void UI_SetSecondarySamplingFrequency(float frequency)
+{
+  all_displayable_items.secondary_sampling_frequency.val = frequency / 1000.0f;
 }
 
 void UI_SetSec1Amplitude(float amplitude)
 {
-  all_displayable_items.sec1_amplitude.val = amplitude;
+  all_displayable_items.sec1_amplitude.val = amplitude / 1000.0f;
 }
 
 void UI_SetSec2Amplitude(float amplitude)
 {
-  all_displayable_items.sec2_amplitude.val = amplitude;
+  all_displayable_items.sec2_amplitude.val = amplitude / 1000.0f;
 }
 
 void UI_SetPosition(float position)
@@ -209,4 +226,9 @@ void UI_SetPosition(float position)
 void UI_SetRatio(float ratio)
 {
   all_displayable_items.ratio.val = ratio;
+}
+
+void UI_SetNHalfbuffersSkipped(uint32_t n_halfbuffers)
+{
+  all_displayable_items.n_halfbuffers_skipped.val = n_halfbuffers;
 }

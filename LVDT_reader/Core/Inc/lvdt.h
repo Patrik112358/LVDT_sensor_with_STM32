@@ -4,13 +4,16 @@
 #include <stdint.h>
 #include <stm32g4xx_ll_dac.h>
 #include "main.h"
+#include "stm32g4xx_hal_adc.h"
 
-#define ADC_BUFFER_SIZE         512
+#define ADC_HALF_BUFFER_SIZE    512
 #define DAC_BUFFER_SIZE         100
 #define PRIMARY_DRIVE_FREQUENCY 2000
 
+#define ADC_BUFFER_SIZE         (ADC_HALF_BUFFER_SIZE * 2)
 extern const uint16_t DAC_buffer_sine[DAC_BUFFER_SIZE];
 extern uint32_t       ADC_buffer[ADC_BUFFER_SIZE];
+extern __IO _Bool     buffer_ready_for_processing;
 
 /* Definitions of environment analog values */
 /* Value of analog reference voltage (Vref+), connected to analog voltage   */
@@ -47,7 +50,20 @@ void LVDT_Init(void);
 void LVDT_Start(void);
 void LVDT_Stop(void);
 
+void LVDT_ProcessData(void);
+
 void LVDT_Start_DAC(void);
 void LVDT_Stop_DAC(void);
+
+void LVDT_Start_ADC(void);
+void LVDT_Stop_ADC(void);
+
+
+float LVDT_GetPrimaryDriveFrequency(void);
+float LVDT_GetSecondarySamplingFrequency(void);
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc);
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc);
+
 
 #endif /* LVDT_H */

@@ -1,16 +1,28 @@
 #include "lvdt.h"
 #include <stdint.h>
+#include <string.h>
+#include "adc.h"
 #include "dac.h"
 #include "debugtools.h"
+#include "goertzel.h"
 #include "main.h"
+#include "opamp.h"
 #include "stm32g4xx_hal.h"
+#include "stm32g4xx_hal_adc.h"
+#include "stm32g4xx_hal_adc_ex.h"
 #include "stm32g4xx_hal_dac.h"
+#include "stm32g4xx_hal_def.h"
 #include "stm32g4xx_hal_tim.h"
+#include "stm32g4xx_ll_adc.h"
 #include "tim.h"
 #include "user_interface.h"
 
-uint32_t ADC_buffer[ADC_BUFFER_SIZE] = { 0 };
-
+uint32_t      ADC_buffer[ADC_BUFFER_SIZE] = { 0 };
+__IO uint32_t n_halfbuffers_sampled = 0;
+uint32_t      n_halfbuffers_processed = 0;
+uint32_t      ADC_halfbuffer_for_processing[ADC_HALF_BUFFER_SIZE] = { 0 };
+__IO _Bool    buffer_being_processed = 0;
+__IO _Bool    buffer_ready_for_processing = 0;
 
 /**
  * @brief  Computation of a data from maximum value on digital scale 12 bits
@@ -88,6 +100,8 @@ void LVDT_Push_info_to_UI(void);
 
 void LVDT_Init(void)
 {
+  HAL_ADC_MspInit(&hadc1); // TODO: check if this is needed (both of these rows)
+  HAL_ADC_MspInit(&hadc2); // TODO: check if this is needed (both of these rows)
   // TIM6_PrescalerReloadCalculation(); // TODO: do not recalculate. Timer params were set manually
 }
 
@@ -137,7 +151,8 @@ void LVDT_Start(void)
   DEBUG_PRINT("LVDT starting...\n");
   /* Start DAC */
   LVDT_Start_DAC();
-
+  /* Start ADC */
+  LVDT_Start_ADC();
   //   /* Start ADC */
   //   HAL_ADC_Start_DMA(&hadc1, (uint32_t *)ADC_buffer, ADC_BUFFER_SIZE);
   //   HAL_ADC_Start_DMA(&hadc2, (uint32_t *)ADC_buffer, ADC_BUFFER_SIZE);
@@ -149,9 +164,19 @@ void LVDT_Start(void)
   //   /* Start TIM6 */
   //   HAL_TIM_Base_Start(&htim6);
   INFO_PRINT("LVDT started\n");
-  float primary_frequency = Get_Timer_Frequency(&htim6) / (float)DAC_BUFFER_SIZE;
-  UI_SetPrimaryDriveFrequency(primary_frequency);
+  UI_SetPrimaryDriveFrequency(LVDT_GetPrimaryDriveFrequency());
+  UI_SetSecondarySamplingFrequency(LVDT_GetSecondarySamplingFrequency());
   UI_Update();
+}
+
+float LVDT_GetPrimaryDriveFrequency(void)
+{
+  return Get_Timer_Frequency(&htim6) / (float)DAC_BUFFER_SIZE;
+}
+
+float LVDT_GetSecondarySamplingFrequency(void)
+{
+  return Get_Timer_Frequency(&htim7);
 }
 
 void LVDT_Stop(void)
@@ -159,6 +184,7 @@ void LVDT_Stop(void)
   /* Stop DAC */
   LVDT_Stop_DAC();
   /* Stop ADC */
+  LVDT_Stop_ADC();
 }
 
 /**
@@ -210,6 +236,91 @@ void LVDT_Stop_DAC(void)
   HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, (uint32_t)0);
   HAL_DAC_Stop(&hdac1, DAC_CHANNEL_1);
 }
+
+
+void LVDT_Start_ADC(void)
+{
+  // ADC1 and ADC2 will work in dual regular simultaneous mode.
+  // Therefore DMA1Ch1 will carry data from both at once.
+  HAL_StatusTypeDef ret = HAL_OK;
+  HAL_ADCEx_MultiModeStart_DMA(&hadc1, ADC_buffer, ADC_BUFFER_SIZE);
+  if (ret != HAL_OK) { ERROR_PRINT("ADC1+2 start failed (HAL_ADCEx_MultiModeStart_DMA)\n"); }
+  ret = ADC_Enable(&hadc1);
+  if (ret != HAL_OK) { ERROR_PRINT("ADC1 enable failed\n"); }
+  ret = ADC_Enable(&hadc2);
+  if (ret != HAL_OK) { ERROR_PRINT("ADC2 enable failed\n"); }
+  // HAL_ADC_Start_DMA(&hadc2, ADC_buffer, ADC_BUFFER_SIZE);
+  ret = HAL_OPAMP_Start(&hopamp1);
+  if (ret != HAL_OK) { ERROR_PRINT("OPAMP1 start failed\n"); }
+  ret = HAL_OPAMP_Start(&hopamp2);
+  if (ret != HAL_OK) { ERROR_PRINT("OPAMP2 start failed\n"); }
+  ret = HAL_TIM_Base_Start_IT(&htim7);
+  if (ret != HAL_OK) { ERROR_PRINT("TIM7 start failed\n"); }
+}
+
+void LVDT_Stop_ADC(void)
+{
+  HAL_ADCEx_MultiModeStop_DMA(&hadc1);
+  // HAL_ADC_Stop_DMA(&hadc2);
+  HAL_OPAMP_Stop(&hopamp1);
+  HAL_OPAMP_Stop(&hopamp2);
+  HAL_TIM_Base_Stop_IT(&htim7);
+}
+
+void HalfbufferConvCpltCallback(_Bool second_half)
+{
+  n_halfbuffers_sampled++;
+  if (buffer_being_processed) { // TODO use locks?
+    return;
+  }
+
+  memcpy(ADC_halfbuffer_for_processing, &ADC_buffer[second_half ? ADC_HALF_BUFFER_SIZE : 0],
+      ADC_HALF_BUFFER_SIZE * sizeof(uint32_t));
+  buffer_ready_for_processing = 1;
+}
+
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
+{
+  // DEBUG_PRINT("ADC half conversion complete\n");
+  HalfbufferConvCpltCallback(0);
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+  // DEBUG_PRINT("ADC conversion complete\n");
+  HalfbufferConvCpltCallback(1);
+}
+
+void LVDT_ProcessData(void)
+{
+  if (!buffer_ready_for_processing) {
+    DEBUG_PRINT("No data to process\n");
+    return;
+  }
+  buffer_being_processed = 1;
+  buffer_ready_for_processing = 0;
+  // TODO process data using goertzel algorithm
+  float a1 = 0;
+  float a2 = 0;
+
+  goertzel_magnitude(&a1, &a2, ADC_halfbuffer_for_processing, ADC_HALF_BUFFER_SIZE,
+      LVDT_GetSecondarySamplingFrequency(), LVDT_GetPrimaryDriveFrequency());
+
+  // a1 = __LL_ADC_CALC_DATA_TO_VOLTAGE(VDDA_APPLI, a1, LL_ADC_RESOLUTION_12B);
+  // a2 = __LL_ADC_CALC_DATA_TO_VOLTAGE(VDDA_APPLI, a2, LL_ADC_RESOLUTION_12B);
+  buffer_being_processed = 0;
+  n_halfbuffers_processed++;
+
+  UI_SetSec1Amplitude(a1);
+  UI_SetSec2Amplitude(a2);
+  UI_SetNHalfbuffersSkipped(n_halfbuffers_sampled - n_halfbuffers_processed);
+
+  float ratio = (a1 - a2) / (a1 + a2);
+  UI_SetRatio(ratio);
+  // UI_SetPosition(a1 / a2);
+  UI_Update();
+}
+
 
 void LVDT_Push_info_to_UI(void)
 {

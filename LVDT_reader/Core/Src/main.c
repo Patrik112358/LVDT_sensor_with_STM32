@@ -97,7 +97,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  LVDT_Init();
+  // LVDT_Init();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -115,6 +115,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
+  LVDT_Init();
   DEBUG_PRINT("Peripherals initialized.\n");
   UI_Init();
   DEBUG_PRINT("UI initialized.\n");
@@ -128,6 +129,11 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1) {
+    if (buffer_ready_for_processing) {
+      LVDT_ProcessData();
+    } else {
+      HAL_Delay(1);
+    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
