@@ -50,6 +50,8 @@ void UI_SetPosition(float position);
 void UI_SetRatio(float ratio);
 // Sets the number of halfbuffers skipped (sampled but not processed)
 void UI_SetNHalfbuffersSkipped(uint32_t n_halfbuffers);
+// Sets the number of halfbuffers skipped per second
+void UI_SetNHalfbuffersSkippedPerSecond(float n_halfbuffers_per_second);
 
 // Waits for user button press
 UI_params_t UI_GetParams(void);

@@ -1,4 +1,5 @@
 #include "lvdt.h"
+#include <math.h>
 #include <stdint.h>
 #include <string.h>
 #include "adc.h"
@@ -19,10 +20,18 @@
 
 uint32_t      ADC_buffer[ADC_BUFFER_SIZE] = { 0 };
 __IO uint32_t n_halfbuffers_sampled = 0;
+uint32_t      tick_sampling_start = 0;
 uint32_t      n_halfbuffers_processed = 0;
 uint32_t      ADC_halfbuffer_for_processing[ADC_HALF_BUFFER_SIZE] = { 0 };
 __IO _Bool    buffer_being_processed = 0;
 __IO _Bool    buffer_ready_for_processing = 0;
+typedef struct {
+  float primary_drive_frequency;
+  // float primary_drive_frequency_sin;
+  // float primary_drive_frequency_cos;
+  float secondary_sampling_frequency;
+} LVDT_params_t;
+LVDT_params_t lvdt_params = { 0 };
 
 /**
  * @brief  Computation of a data from maximum value on digital scale 12 bits
@@ -34,7 +43,8 @@ __IO _Bool    buffer_ready_for_processing = 0;
  */
 #define __WAVEFORM_AMPLITUDE_SCALING(__DATA_12BITS__)                                                                  \
   (__DATA_12BITS__ * __LL_DAC_CALC_VOLTAGE_TO_DATA(VDDA_APPLI, WAVEFORM_AMPLITUDE, LL_DAC_RESOLUTION_12B)              \
-      / __LL_DAC_DIGITAL_SCALE(LL_DAC_RESOLUTION_12B))
+          / __LL_DAC_DIGITAL_SCALE(LL_DAC_RESOLUTION_12B)                                                              \
+      + __LL_DAC_CALC_VOLTAGE_TO_DATA(VDDA_APPLI, WAVEFORM_OFFSET, LL_DAC_RESOLUTION_12B))
 
 /* python3.12
 import math
@@ -164,8 +174,12 @@ void LVDT_Start(void)
   //   /* Start TIM6 */
   //   HAL_TIM_Base_Start(&htim6);
   INFO_PRINT("LVDT started\n");
-  UI_SetPrimaryDriveFrequency(LVDT_GetPrimaryDriveFrequency());
-  UI_SetSecondarySamplingFrequency(LVDT_GetSecondarySamplingFrequency());
+  lvdt_params.primary_drive_frequency = LVDT_GetPrimaryDriveFrequency();
+  // lvdt_params.primary_drive_frequency_sin = sin(2 * M_PI * lvdt_params.primary_drive_frequency);
+  // lvdt_params.primary_drive_frequency_cos = cos(2 * M_PI * lvdt_params.primary_drive_frequency);
+  UI_SetPrimaryDriveFrequency(lvdt_params.primary_drive_frequency);
+  lvdt_params.secondary_sampling_frequency = LVDT_GetSecondarySamplingFrequency();
+  UI_SetSecondarySamplingFrequency(lvdt_params.secondary_sampling_frequency);
   UI_Update();
 }
 
@@ -304,7 +318,7 @@ void LVDT_ProcessData(void)
   float a2 = 0;
 
   goertzel_magnitude(&a1, &a2, ADC_halfbuffer_for_processing, ADC_HALF_BUFFER_SIZE,
-      LVDT_GetSecondarySamplingFrequency(), LVDT_GetPrimaryDriveFrequency());
+      lvdt_params.secondary_sampling_frequency, lvdt_params.primary_drive_frequency);
 
   // a1 = __LL_ADC_CALC_DATA_TO_VOLTAGE(VDDA_APPLI, a1, LL_ADC_RESOLUTION_12B);
   // a2 = __LL_ADC_CALC_DATA_TO_VOLTAGE(VDDA_APPLI, a2, LL_ADC_RESOLUTION_12B);
@@ -313,7 +327,11 @@ void LVDT_ProcessData(void)
 
   UI_SetSec1Amplitude(a1);
   UI_SetSec2Amplitude(a2);
-  UI_SetNHalfbuffersSkipped(n_halfbuffers_sampled - n_halfbuffers_processed);
+  uint32_t current_tick = HAL_GetTick();
+
+  UI_SetNHalfbuffersSkipped((n_halfbuffers_sampled - n_halfbuffers_processed));
+  UI_SetNHalfbuffersSkippedPerSecond(
+      (float)(n_halfbuffers_sampled - n_halfbuffers_processed) / ((current_tick - tick_sampling_start) / 1000.0f));
 
   float ratio = (a1 - a2) / (a1 + a2);
   UI_SetRatio(ratio);

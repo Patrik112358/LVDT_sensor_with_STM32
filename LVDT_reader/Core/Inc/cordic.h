@@ -42,6 +42,30 @@ void MX_CORDIC_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
+
+/**
+ * @brief Computes the square root of a non-negative number using STM32 CORDIC in fixed-point mode.
+ *
+ * @param[in]  input      Positive float value to compute the square root of.
+ * @param[out] sqrt_out   Pointer to store the square root result (must not be NULL).
+ *
+ * @retval HAL_OK     Success.
+ * @retval HAL_ERROR  HAL configuration or calculation error.
+ */
+HAL_StatusTypeDef cordic_compute_sqrt(float input, float* sqrt_out);
+
+/**
+ * @brief Computes the magnitude of a vector using the CORDIC algorithm.
+ *
+ * @param[in]  x            X coordinate of the vector.
+ * @param[in]  y            Y coordinate of the vector.
+ * @param[out] magnitude_out Pointer to store the magnitude result (must not be NULL).
+ *
+ * @retval HAL_OK     Success.
+ * @retval HAL_ERROR  HAL configuration or calculation error.
+ */
+HAL_StatusTypeDef CORDIC_compute_magnitude(float x, float y, float* magnitude_out);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

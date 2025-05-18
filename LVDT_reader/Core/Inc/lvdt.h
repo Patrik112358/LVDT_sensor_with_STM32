@@ -6,7 +6,7 @@
 #include "main.h"
 #include "stm32g4xx_hal_adc.h"
 
-#define ADC_HALF_BUFFER_SIZE    512
+#define ADC_HALF_BUFFER_SIZE    512 * 2
 #define DAC_BUFFER_SIZE         100
 #define PRIMARY_DRIVE_FREQUENCY 2000
 
@@ -28,8 +28,10 @@ extern __IO _Bool     buffer_ready_for_processing;
 
 /* Definitions of waveform generation values */
 /* Waveform generation: parameters of waveform */
-/* Waveform amplitude (unit: mV) */
-#define WAVEFORM_AMPLITUDE                 (VDDA_APPLI)
+/* Waveform amplitude (unit: mV) - Vpp */
+#define WAVEFORM_AMPLITUDE                 (1750)
+/* Waveform offset (unit: mV) - defines Vmin of the waveform */
+#define WAVEFORM_OFFSET                    (650)
 /* Waveform amplitude (unit: Hz) */
 #define WAVEFORM_FREQUENCY                 ((uint32_t)PRIMARY_DRIVE_FREQUENCY)
 /* Size of array containing DAC waveform samples */

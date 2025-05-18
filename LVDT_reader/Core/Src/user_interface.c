@@ -5,6 +5,7 @@
 #include "ssd1306.h"
 #include "ssd1306_fonts.h"
 #include "ssd1306_tests.h"
+#include "usart.h"
 
 #define SMALLEST_FONT Font_6x8
 #define WIDTH_CHARS   (SSD1306_WIDTH / 6) // [21] 6 is the width of the smallest font
@@ -40,9 +41,10 @@ typedef struct {
   X("secSampFrq ###.###kHz", "% 7.3f", float, secondary_sampling_frequency)                                            \
   X("sec1 amp   ###.### kV", "% 7.3f", float, sec1_amplitude)                                                          \
   X("sec2 amp   ###.### kV", "% 7.3f", float, sec2_amplitude)                                                          \
-  X("ratio      ###.### - ", "%07.3f", float, ratio)                                                                   \
+  X("ratio     ####.### - ", "%+ 8.3f", float, ratio)                                                                  \
   X("position     ###.# mm", "%05.1f", double, position)                                                               \
   X("bufs skip'd ###### - ", "% 6u", uint32_t, n_halfbuffers_skipped)                                                  \
+  X("bufs skip'd###.### /s", "% 7.3f", float, n_halfbuffers_skipped_per_second)                                        \
   /* =====================                                                                                          */
 
 typedef enum {
@@ -107,7 +109,7 @@ DisplayableItem_t* screen_rows[HEIGHT_CHARS] = {
   (DisplayableItem_t*)&all_displayable_items.sec2_amplitude,
   (DisplayableItem_t*)&all_displayable_items.ratio,
   (DisplayableItem_t*)&all_displayable_items.position,
-  NULL,
+  (DisplayableItem_t*)&all_displayable_items.n_halfbuffers_skipped_per_second,
   (DisplayableItem_t*)&all_displayable_items.n_halfbuffers_skipped,
 };
 
@@ -191,10 +193,32 @@ void UI_UpdateDisplayableItems(void)
 #undef UPDATE_DISPLAYABLE_ITEMS
 }
 
+void UI_SendToUART(void)
+{
+#define FMT_STR "%.3f,%.3f,%.3f\n"
+#define VARS                                                                                                           \
+  all_displayable_items.sec1_amplitude.val, all_displayable_items.sec2_amplitude.val, all_displayable_items.ratio.val
+  int ret = snprintf(NULL, 0, FMT_STR, VARS);
+  if (ret < 0) {
+    WARN_PRINT("snprintf failed");
+    return;
+  }
+  char buffer[ret + 1];
+  ret = snprintf(buffer, sizeof(buffer), FMT_STR, VARS);
+  if (ret < 0) {
+    WARN_PRINT("snprintf failed");
+    return;
+  }
+#undef FMT_STR
+#undef VARS
+  HAL_UART_Transmit(&huart1, (uint8_t*)buffer, ret, HAL_MAX_DELAY);
+}
+
 void UI_Update(void)
 {
   UI_UpdateDisplayableItems();
   UI_UpdateScreen();
+  UI_SendToUART();
 }
 
 
@@ -211,11 +235,13 @@ void UI_SetSecondarySamplingFrequency(float frequency)
 void UI_SetSec1Amplitude(float amplitude)
 {
   all_displayable_items.sec1_amplitude.val = amplitude / 1000.0f;
+  // all_displayable_items.sec1_amplitude.val = amplitude;
 }
 
 void UI_SetSec2Amplitude(float amplitude)
 {
   all_displayable_items.sec2_amplitude.val = amplitude / 1000.0f;
+  // all_displayable_items.sec2_amplitude.val = amplitude;
 }
 
 void UI_SetPosition(float position)
@@ -225,10 +251,15 @@ void UI_SetPosition(float position)
 
 void UI_SetRatio(float ratio)
 {
-  all_displayable_items.ratio.val = ratio;
+  all_displayable_items.ratio.val = ratio * 10;
 }
 
 void UI_SetNHalfbuffersSkipped(uint32_t n_halfbuffers)
 {
   all_displayable_items.n_halfbuffers_skipped.val = n_halfbuffers;
+}
+
+void UI_SetNHalfbuffersSkippedPerSecond(float n_halfbuffers_per_second)
+{
+  all_displayable_items.n_halfbuffers_skipped_per_second.val = n_halfbuffers_per_second;
 }
