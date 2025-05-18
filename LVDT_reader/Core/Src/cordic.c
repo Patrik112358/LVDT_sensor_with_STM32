@@ -19,9 +19,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "cordic.h"
-#include <stdint.h>
-#include "stm32g4xx_hal_cordic.h"
-#include "stm32g4xx_hal_def.h"
 
 /* USER CODE BEGIN 0 */
 CORDIC_ConfigTypeDef cordic_active_config;
