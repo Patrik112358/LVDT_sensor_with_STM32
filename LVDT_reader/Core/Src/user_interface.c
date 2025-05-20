@@ -38,11 +38,11 @@ typedef struct {
 #define DISPLAYABLE_ITEMS(X)                                                                                           \
   /* =====================                                                                                          */ \
   X("primDrvFrq ###.###kHz", "% 7.3f", float, primary_drive_frequency)                                                 \
-  X("secSampFrq ###.###kHz", "% 7.3f", float, secondary_sampling_frequency)                                            \
-  X("sec1 amp   ###.### kV", "% 7.3f", float, sec1_amplitude)                                                          \
-  X("sec2 amp   ###.### kV", "% 7.3f", float, sec2_amplitude)                                                          \
+  X("secSampFrq####.###kHz", "% 7.3f", float, secondary_sampling_frequency)                                            \
+  X("sec1 amp    #.#### V ", "% 6.4f", float, sec1_amplitude)                                                          \
+  X("sec2 amp    #.#### V ", "% 6.4f", float, sec2_amplitude)                                                          \
   X("ratio     ####.### - ", "%+ 8.3f", float, ratio)                                                                  \
-  X("position     ###.# mm", "%05.1f", double, position)                                                               \
+  X("position     ###.# mm", "%05.1f", float, position)                                                                \
   X("bufs skip'd ###### - ", "% 6u", uint32_t, n_halfbuffers_skipped)                                                  \
   X("bufs skip'd###.### /s", "% 7.3f", float, n_halfbuffers_skipped_per_second)                                        \
   /* =====================                                                                                          */
@@ -105,12 +105,11 @@ AllDisplayableItems_t all_displayable_items = {
 DisplayableItem_t* screen_rows[HEIGHT_CHARS] = {
   (DisplayableItem_t*)&all_displayable_items.primary_drive_frequency,
   (DisplayableItem_t*)&all_displayable_items.secondary_sampling_frequency,
-  (DisplayableItem_t*)&all_displayable_items.sec1_amplitude,
-  (DisplayableItem_t*)&all_displayable_items.sec2_amplitude,
+  (DisplayableItem_t*)&all_displayable_items.sec1_amplitude, (DisplayableItem_t*)&all_displayable_items.sec2_amplitude,
   (DisplayableItem_t*)&all_displayable_items.ratio,
-  (DisplayableItem_t*)&all_displayable_items.position,
+  // (DisplayableItem_t*)&all_displayable_items.position,
   (DisplayableItem_t*)&all_displayable_items.n_halfbuffers_skipped_per_second,
-  (DisplayableItem_t*)&all_displayable_items.n_halfbuffers_skipped,
+  // (DisplayableItem_t*)&all_displayable_items.n_halfbuffers_skipped,
 };
 
 
@@ -157,6 +156,50 @@ void UI_UpdateScreen(void)
     }
     ssd1306_WriteString(row->row_spec.row, *ui_params.font, White);
   }
+  const unsigned last_row_top_y = 6 * SMALLEST_FONT.height;
+  const unsigned last_row_bottom_y = SSD1306_HEIGHT - 1;
+  const unsigned last_row_midline_start_y = last_row_top_y + (last_row_bottom_y - last_row_top_y) / 2;
+  const unsigned last_row_midline_end_y = last_row_midline_start_y + 1;
+  const unsigned last_row_left_x = 0;
+  const unsigned last_row_right_x = SSD1306_WIDTH - 1;
+  ssd1306_FillRectangle(last_row_left_x, last_row_top_y, last_row_right_x, last_row_bottom_y, Black);
+  ssd1306_FillRectangle(last_row_left_x, last_row_midline_start_y, last_row_right_x, last_row_midline_end_y, White);
+  const unsigned slider_width = 12;
+  const unsigned slider_half_height = SMALLEST_FONT.height - 1;
+  // const unsigned slider_height = 4;
+  const unsigned slider_top_y = last_row_midline_start_y - slider_half_height;
+  const unsigned slider_bottom_y = last_row_midline_end_y + slider_half_height;
+
+  const float position = all_displayable_items.ratio.val_float;
+  const float min_position = -8.0f;
+  const float max_position = 8.0f;
+  const float position_range = max_position - min_position;
+  const float position_normalized = (position - min_position) / position_range;
+  const float slider_horizontal_position_middle = position_normalized * SSD1306_WIDTH;
+  int         slider_left_x = (int)(slider_horizontal_position_middle - (float)slider_width / 2) / 1;
+  int         slider_right_x = (int)(slider_horizontal_position_middle + (float)slider_width / 2) / 1;
+  if (slider_left_x < 0) { slider_left_x = 0; }
+  if (slider_right_x >= SSD1306_WIDTH) { slider_right_x = SSD1306_WIDTH - 1; }
+
+  ssd1306_FillRectangle(slider_left_x, slider_top_y, slider_right_x, slider_bottom_y, White);
+
+  int slider_half_width = slider_width / 2;
+  int slider_protrude_left_x = slider_left_x - slider_half_width;
+  int slider_protrude_right_x = slider_right_x + slider_half_width;
+  if (slider_protrude_left_x < 0) { slider_protrude_left_x = 0; }
+  if (slider_protrude_right_x >= SSD1306_WIDTH) { slider_protrude_right_x = SSD1306_WIDTH - 1; }
+  const unsigned slider_quarter_height = slider_half_height / 2;
+  const unsigned slider_protrude_top_y = last_row_midline_start_y - slider_quarter_height;
+  const unsigned slider_protrude_bottom_y = last_row_midline_end_y + slider_quarter_height;
+  if (slider_protrude_left_x < slider_left_x) {
+    ssd1306_FillRectangle(slider_protrude_left_x, slider_protrude_top_y, slider_left_x, slider_protrude_bottom_y,
+        White);
+  }
+  if (slider_protrude_right_x > slider_right_x) {
+    ssd1306_FillRectangle(slider_right_x, slider_protrude_top_y, slider_protrude_right_x, slider_protrude_bottom_y,
+        White);
+  }
+
   ssd1306_UpdateScreen();
 }
 
@@ -195,7 +238,7 @@ void UI_UpdateDisplayableItems(void)
 
 void UI_SendToUART(void)
 {
-#define FMT_STR "%.3f,%.3f,%.3f\n"
+#define FMT_STR "%.6f,%.6f,%.6f\n"
 #define VARS                                                                                                           \
   all_displayable_items.sec1_amplitude.val, all_displayable_items.sec2_amplitude.val, all_displayable_items.ratio.val
   int ret = snprintf(NULL, 0, FMT_STR, VARS);
@@ -234,13 +277,13 @@ void UI_SetSecondarySamplingFrequency(float frequency)
 
 void UI_SetSec1Amplitude(float amplitude)
 {
-  all_displayable_items.sec1_amplitude.val = amplitude / 1000.0f;
+  all_displayable_items.sec1_amplitude.val = amplitude / 1000000.0f;
   // all_displayable_items.sec1_amplitude.val = amplitude;
 }
 
 void UI_SetSec2Amplitude(float amplitude)
 {
-  all_displayable_items.sec2_amplitude.val = amplitude / 1000.0f;
+  all_displayable_items.sec2_amplitude.val = amplitude / 1000000.0f;
   // all_displayable_items.sec2_amplitude.val = amplitude;
 }
 
