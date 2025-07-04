@@ -45,6 +45,9 @@ extern uint32_t tim6_prescaler;
 extern uint32_t tim6_period;
 extern uint32_t tim7_prescaler;
 extern uint32_t tim7_period;
+extern __IO uint8_t ubButtonPress;
+
+
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -55,6 +58,8 @@ extern uint32_t tim7_period;
 #define LED_BLINK_FAST  200
 #define LED_BLINK_SLOW  500
 #define LED_BLINK_ERROR 1000
+
+
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/

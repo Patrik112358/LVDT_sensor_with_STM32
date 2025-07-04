@@ -313,7 +313,6 @@ void LVDT_ProcessData(void)
   }
   buffer_being_processed = 1;
   buffer_ready_for_processing = 0;
-  // TODO process data using goertzel algorithm
   float a1 = 0;
   float a2 = 0;
 

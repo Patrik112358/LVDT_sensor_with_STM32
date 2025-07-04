@@ -1,7 +1,10 @@
 #include "user_interface.h"
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
+#include <sys/_types.h>
 #include "debugtools.h"
+#include "main.h"
 #include "ssd1306.h"
 #include "ssd1306_fonts.h"
 #include "ssd1306_tests.h"
@@ -42,7 +45,7 @@ typedef struct {
   X("sec1 amp    #.#### V ", "% 6.4f", float, sec1_amplitude)                                                          \
   X("sec2 amp    #.#### V ", "% 6.4f", float, sec2_amplitude)                                                          \
   X("ratio     ####.### - ", "%+ 8.3f", float, ratio)                                                                  \
-  X("position     ###.# mm", "%05.1f", float, position)                                                                \
+  X("position    ##.### mm", "%+ 6.3f", float, position)                                                               \
   X("bufs skip'd ###### - ", "% 6u", uint32_t, n_halfbuffers_skipped)                                                  \
   X("bufs skip'd###.### /s", "% 7.3f", float, n_halfbuffers_skipped_per_second)                                        \
   /* =====================                                                                                          */
@@ -83,6 +86,13 @@ DEFINE_ROW_OF_TYPE(double)
 BUILD_BUG_ON(sizeof(DisplayableItem_t) != sizeof(DisplayableItem_double_t));
 DEFINE_ROW_OF_TYPE(uint32_t)
 
+#define AVERAGING_BUFFER_SIZE 2
+const float length_coefficient = 1.0f / 0.4312f;
+float       sec1_amplitude_buffer[AVERAGING_BUFFER_SIZE] = { 0 };
+float       sec2_amplitude_buffer[AVERAGING_BUFFER_SIZE] = { 0 };
+float       ratio_buffer[AVERAGING_BUFFER_SIZE] = { 0 };
+unsigned    averaging_idx = 0;
+
 
 // Define the struct fields using the X-macro
 typedef union {
@@ -106,8 +116,8 @@ DisplayableItem_t* screen_rows[HEIGHT_CHARS] = {
   (DisplayableItem_t*)&all_displayable_items.primary_drive_frequency,
   (DisplayableItem_t*)&all_displayable_items.secondary_sampling_frequency,
   (DisplayableItem_t*)&all_displayable_items.sec1_amplitude, (DisplayableItem_t*)&all_displayable_items.sec2_amplitude,
-  (DisplayableItem_t*)&all_displayable_items.ratio,
-  // (DisplayableItem_t*)&all_displayable_items.position,
+  // (DisplayableItem_t*)&all_displayable_items.ratio,
+  (DisplayableItem_t*)&all_displayable_items.position,
   (DisplayableItem_t*)&all_displayable_items.n_halfbuffers_skipped_per_second,
   // (DisplayableItem_t*)&all_displayable_items.n_halfbuffers_skipped,
 };
@@ -260,8 +270,15 @@ void UI_SendToUART(void)
 void UI_Update(void)
 {
   UI_UpdateDisplayableItems();
-  UI_UpdateScreen();
-  UI_SendToUART();
+  averaging_idx++;
+  averaging_idx %= AVERAGING_BUFFER_SIZE;
+  if (averaging_idx == 0) {
+    UI_UpdateScreen();
+    if (ubButtonPress == 1) {
+      UI_SendToUART();
+      ubButtonPress = 0;
+    }
+  }
 }
 
 
@@ -277,14 +294,28 @@ void UI_SetSecondarySamplingFrequency(float frequency)
 
 void UI_SetSec1Amplitude(float amplitude)
 {
-  all_displayable_items.sec1_amplitude.val = amplitude / 1000000.0f;
-  // all_displayable_items.sec1_amplitude.val = amplitude;
+  amplitude = amplitude / 1000000.0f;
+  sec1_amplitude_buffer[averaging_idx] = amplitude;
+  if (AVERAGING_BUFFER_SIZE - 1 <= averaging_idx) {
+    float sum = 0;
+    for (unsigned i = 0; i < AVERAGING_BUFFER_SIZE; i++) { sum += sec1_amplitude_buffer[i]; }
+    amplitude = sum / AVERAGING_BUFFER_SIZE;
+    memset(sec1_amplitude_buffer, 0, AVERAGING_BUFFER_SIZE * sizeof(sec1_amplitude_buffer[0]));
+    all_displayable_items.sec1_amplitude.val = amplitude;
+  }
 }
 
 void UI_SetSec2Amplitude(float amplitude)
 {
-  all_displayable_items.sec2_amplitude.val = amplitude / 1000000.0f;
-  // all_displayable_items.sec2_amplitude.val = amplitude;
+  amplitude = amplitude / 1000000.0f;
+  sec2_amplitude_buffer[averaging_idx] = amplitude;
+  if (AVERAGING_BUFFER_SIZE - 1 <= averaging_idx) {
+    float sum = 0;
+    for (unsigned i = 0; i < AVERAGING_BUFFER_SIZE; i++) { sum += sec2_amplitude_buffer[i]; }
+    amplitude = sum / AVERAGING_BUFFER_SIZE;
+    memset(sec2_amplitude_buffer, 0, AVERAGING_BUFFER_SIZE * sizeof(sec2_amplitude_buffer[0]));
+    all_displayable_items.sec2_amplitude.val = amplitude;
+  }
 }
 
 void UI_SetPosition(float position)
@@ -294,7 +325,17 @@ void UI_SetPosition(float position)
 
 void UI_SetRatio(float ratio)
 {
-  all_displayable_items.ratio.val = ratio * 10;
+  ratio = ratio * 10.0f;
+  ratio_buffer[averaging_idx] = ratio;
+  if (AVERAGING_BUFFER_SIZE - 1 <= averaging_idx) {
+    float sum = 0;
+    for (unsigned i = 0; i < AVERAGING_BUFFER_SIZE; i++) { sum += ratio_buffer[i]; }
+    ratio = sum / AVERAGING_BUFFER_SIZE;
+    memset(ratio_buffer, 0, AVERAGING_BUFFER_SIZE * sizeof(ratio_buffer[0]));
+    all_displayable_items.ratio.val = ratio;
+  }
+  float position = ratio * length_coefficient;
+  UI_SetPosition(position);
 }
 
 void UI_SetNHalfbuffersSkipped(uint32_t n_halfbuffers)
