@@ -33,6 +33,7 @@
 #include "debugtools.h"
 #include "lvdt.h"
 #include "user_interface.h"
+#include "onebutton.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,7 +54,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-__IO uint8_t ubButtonPress = 0;
+__IO uint8_t       ubButtonPress = 0;
+OnebuttonHandler_t onebutton_handle = { 0 };
 
 // uint32_t tim6_prescaler = 0;
 // uint32_t tim6_period = 65535;
@@ -115,6 +117,10 @@ int main(void)
   MX_USART1_UART_Init();
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
+  OnebuttonHandlerInitParams_t onebutton_init_params = Onebutton_GetDefaultInitParams();
+  onebutton_init_params.GPIOx = USER_BUTTON_GPIO_Port;
+  onebutton_init_params.GPIO_Pin = USER_BUTTON_Pin;
+  Onebutton_Init(&onebutton_handle, &onebutton_init_params);
   LVDT_Init();
   DEBUG_PRINT("Peripherals initialized.\n");
   UI_Init();
@@ -250,6 +256,7 @@ void LED_Blinking(uint32_t Period)
  * @brief  Function to manage IRQ Handler
  * @param  None
  * @retval None
+ * @deprecated
  */
 void UserButton_Callback(void)
 {
@@ -268,7 +275,7 @@ void UserButton_Callback(void)
   */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-  if (GPIO_Pin == USER_BUTTON_Pin) { UserButton_Callback(); }
+  if (GPIO_Pin == USER_BUTTON_Pin) { Onebutton_InterruptHandler(&onebutton_handle); }
 }
 
 PUTCHAR_PROTOTYPE

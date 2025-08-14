@@ -187,14 +187,14 @@ void ssd1306_TestFonts1_screen_info(void)
   int ret = snprintf(buff, sizeof(buff), "%dx%d px", SSD1306_WIDTH, SSD1306_HEIGHT);
   INFO_PRINT("%dx%d px\n", SSD1306_WIDTH, SSD1306_HEIGHT);
   if(ret < 0 || ret >= (int)sizeof(buff)) { WARN_PRINT("snprintf failed"); }
-  ssd1306_SetCursor(INT_AT_LEAST_ZERO(((int)SSD1306_WIDTH) - (strlen(buff) * info_font.width) - 2), y - info_font.height);
+  ssd1306_SetCursor(INT_AT_LEAST_ZERO(((int)SSD1306_WIDTH) - (int)(strlen(buff) * info_font.width) - 2), y - info_font.height);
   ssd1306_WriteString(buff, info_font, Black);
 
   ret = snprintf(buff, sizeof(buff), "%.1fx%.1f ch", SSD1306_WIDTH / (float)Font_6x8.width,
       SSD1306_HEIGHT / (float)Font_6x8.height);
   INFO_PRINT("%.2fx%.2f chars\n", SSD1306_WIDTH / (float)Font_6x8.width, SSD1306_HEIGHT / (float)Font_6x8.height);
   if(ret < 0 || ret >= (int)sizeof(buff)) { WARN_PRINT("snprintf failed"); }
-  ssd1306_SetCursor(INT_AT_LEAST_ZERO((int)SSD1306_WIDTH - (strlen(buff) * info_font.width) - 2), y);
+  ssd1306_SetCursor(INT_AT_LEAST_ZERO((int)SSD1306_WIDTH - (int)(strlen(buff) * info_font.width) - 2), y);
   ssd1306_WriteString(buff, info_font, Black);
 
   ssd1306_UpdateScreen();

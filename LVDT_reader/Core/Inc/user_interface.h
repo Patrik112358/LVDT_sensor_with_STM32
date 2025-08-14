@@ -20,6 +20,17 @@
 //     float position;
 // } ScreenContents_t;
 
+#define MAX_AVERAGING_BUFFER_SIZE 32
+
+
+typedef struct {
+  uint8_t averaging_length; // Number of samples to average
+  uint8_t averaging_current_idx; // Current index in the averaging buffer
+  float   length_coefficient; // Coefficient to convert ratio to position
+  uint8_t
+      uart_send_frequency_N; // Configures N. Every Nth measurement will be sent through UART. 0 means measurement after button press;
+  uint8_t uart_send_frequency_current_idx;
+} UI_state_t;
 
 typedef struct {
   const SSD1306_Font_t* font;
@@ -52,6 +63,9 @@ void UI_SetRatio(float ratio);
 void UI_SetNHalfbuffersSkipped(uint32_t n_halfbuffers);
 // Sets the number of halfbuffers skipped per second
 void UI_SetNHalfbuffersSkippedPerSecond(float n_halfbuffers_per_second);
+
+int UI_SaveStateParamsToFlash(UI_state_t* ui_state);
+int UI_LoadStateParamsFromFlash(UI_state_t* ui_state);
 
 // Waits for user button press
 UI_params_t UI_GetParams(void);

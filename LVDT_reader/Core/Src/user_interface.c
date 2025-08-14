@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/_types.h>
 #include "debugtools.h"
+#include "flash.h"
 #include "main.h"
 #include "ssd1306.h"
 #include "ssd1306_fonts.h"
@@ -86,12 +87,9 @@ DEFINE_ROW_OF_TYPE(double)
 BUILD_BUG_ON(sizeof(DisplayableItem_t) != sizeof(DisplayableItem_double_t));
 DEFINE_ROW_OF_TYPE(uint32_t)
 
-#define AVERAGING_BUFFER_SIZE 2
-const float length_coefficient = 1.0f / 0.4312f;
-float       sec1_amplitude_buffer[AVERAGING_BUFFER_SIZE] = { 0 };
-float       sec2_amplitude_buffer[AVERAGING_BUFFER_SIZE] = { 0 };
-float       ratio_buffer[AVERAGING_BUFFER_SIZE] = { 0 };
-unsigned    averaging_idx = 0;
+float sec1_amplitude_buffer[MAX_AVERAGING_BUFFER_SIZE] = { 0 };
+float sec2_amplitude_buffer[MAX_AVERAGING_BUFFER_SIZE] = { 0 };
+float ratio_buffer[MAX_AVERAGING_BUFFER_SIZE] = { 0 };
 
 
 // Define the struct fields using the X-macro
@@ -124,6 +122,10 @@ DisplayableItem_t* screen_rows[HEIGHT_CHARS] = {
 
 
 UI_params_t ui_params = { 0 };
+UI_state_t  ui_state = {
+   .length_coefficient = 1.0f / 0.4312f,
+   .averaging_length = 1,
+};
 
 void UI_Init(void)
 {
@@ -150,6 +152,7 @@ void UI_Init(void)
   ssd1306_Init();
   // ssd1306_TestFonts1_screen_info_PRINT();
   UI_UpdateScreen();
+  if (0 != UI_LoadStateParamsFromFlash(&ui_state)) { WARN_PRINT("UI state params load from flash failed."); }
 }
 
 
@@ -270,9 +273,9 @@ void UI_SendToUART(void)
 void UI_Update(void)
 {
   UI_UpdateDisplayableItems();
-  averaging_idx++;
-  averaging_idx %= AVERAGING_BUFFER_SIZE;
-  if (averaging_idx == 0) {
+  ui_state.averaging_current_idx++;
+  ui_state.averaging_current_idx %= ui_state.averaging_length;
+  if (ui_state.averaging_current_idx == 0) {
     UI_UpdateScreen();
     if (ubButtonPress == 1) {
       UI_SendToUART();
@@ -295,12 +298,12 @@ void UI_SetSecondarySamplingFrequency(float frequency)
 void UI_SetSec1Amplitude(float amplitude)
 {
   amplitude = amplitude / 1000000.0f;
-  sec1_amplitude_buffer[averaging_idx] = amplitude;
-  if (AVERAGING_BUFFER_SIZE - 1 <= averaging_idx) {
+  sec1_amplitude_buffer[ui_state.averaging_current_idx] = amplitude;
+  if (ui_state.averaging_length - 1 <= ui_state.averaging_current_idx) {
     float sum = 0;
-    for (unsigned i = 0; i < AVERAGING_BUFFER_SIZE; i++) { sum += sec1_amplitude_buffer[i]; }
-    amplitude = sum / AVERAGING_BUFFER_SIZE;
-    memset(sec1_amplitude_buffer, 0, AVERAGING_BUFFER_SIZE * sizeof(sec1_amplitude_buffer[0]));
+    for (unsigned i = 0; i < ui_state.averaging_length; i++) { sum += sec1_amplitude_buffer[i]; }
+    amplitude = sum / ui_state.averaging_length;
+    memset(sec1_amplitude_buffer, 0, ui_state.averaging_length * sizeof(sec1_amplitude_buffer[0]));
     all_displayable_items.sec1_amplitude.val = amplitude;
   }
 }
@@ -308,12 +311,12 @@ void UI_SetSec1Amplitude(float amplitude)
 void UI_SetSec2Amplitude(float amplitude)
 {
   amplitude = amplitude / 1000000.0f;
-  sec2_amplitude_buffer[averaging_idx] = amplitude;
-  if (AVERAGING_BUFFER_SIZE - 1 <= averaging_idx) {
+  sec2_amplitude_buffer[ui_state.averaging_current_idx] = amplitude;
+  if (ui_state.averaging_length - 1 <= ui_state.averaging_current_idx) {
     float sum = 0;
-    for (unsigned i = 0; i < AVERAGING_BUFFER_SIZE; i++) { sum += sec2_amplitude_buffer[i]; }
-    amplitude = sum / AVERAGING_BUFFER_SIZE;
-    memset(sec2_amplitude_buffer, 0, AVERAGING_BUFFER_SIZE * sizeof(sec2_amplitude_buffer[0]));
+    for (unsigned i = 0; i < ui_state.averaging_length; i++) { sum += sec2_amplitude_buffer[i]; }
+    amplitude = sum / ui_state.averaging_length;
+    memset(sec2_amplitude_buffer, 0, ui_state.averaging_length * sizeof(sec2_amplitude_buffer[0]));
     all_displayable_items.sec2_amplitude.val = amplitude;
   }
 }
@@ -326,15 +329,15 @@ void UI_SetPosition(float position)
 void UI_SetRatio(float ratio)
 {
   ratio = ratio * 10.0f;
-  ratio_buffer[averaging_idx] = ratio;
-  if (AVERAGING_BUFFER_SIZE - 1 <= averaging_idx) {
+  ratio_buffer[ui_state.averaging_current_idx] = ratio;
+  if (ui_state.averaging_length - 1 <= ui_state.averaging_current_idx) {
     float sum = 0;
-    for (unsigned i = 0; i < AVERAGING_BUFFER_SIZE; i++) { sum += ratio_buffer[i]; }
-    ratio = sum / AVERAGING_BUFFER_SIZE;
-    memset(ratio_buffer, 0, AVERAGING_BUFFER_SIZE * sizeof(ratio_buffer[0]));
+    for (unsigned i = 0; i < ui_state.averaging_length; i++) { sum += ratio_buffer[i]; }
+    ratio = sum / ui_state.averaging_length;
+    memset(ratio_buffer, 0, ui_state.averaging_length * sizeof(ratio_buffer[0]));
     all_displayable_items.ratio.val = ratio;
   }
-  float position = ratio * length_coefficient;
+  float position = ratio * ui_state.length_coefficient;
   UI_SetPosition(position);
 }
 
@@ -346,4 +349,40 @@ void UI_SetNHalfbuffersSkipped(uint32_t n_halfbuffers)
 void UI_SetNHalfbuffersSkippedPerSecond(float n_halfbuffers_per_second)
 {
   all_displayable_items.n_halfbuffers_skipped_per_second.val = n_halfbuffers_per_second;
+}
+
+
+int UI_SaveStateParamsToFlash(UI_state_t* ui_state)
+{
+  FLASH_store_object_v1_t flash_params = {
+    .object_version = 1,
+    .length_coefficient = ui_state->length_coefficient,
+    .averaging_buffer_size = ui_state->averaging_length,
+    .uart_send_period_n_measurements = ui_state->uart_send_frequency_N,
+  };
+  return write_flash_object_LVDT_reader_params_v1(&flash_params);
+}
+
+int UI_LoadStateParamsFromFlash(UI_state_t* ui_state)
+{
+  FLASH_store_object_v1_t flash_params = { .averaging_buffer_size = 1, .uart_send_period_n_measurements = 0 };
+  int                     ret = read_flash_object_LVDT_reader_params_v1(&flash_params);
+  if (ret < 0) {
+    WARN_PRINT("Failed to read UI state params from flash\n");
+    return ret;
+  }
+  // ui_state->length_coefficient = flash_params.length_coefficient;
+  // ui_state->averaging_length = flash_params.averaging_buffer_size;
+  // ui_state->uart_send_frequency_N = flash_params.uart_send_period_n_measurements;
+  *ui_state = (UI_state_t){
+    // averaging
+    .averaging_length = flash_params.averaging_buffer_size,
+    .averaging_current_idx = 0, // Reset the current index
+    // UART reporting
+    .uart_send_frequency_N = flash_params.uart_send_period_n_measurements,
+    .uart_send_frequency_current_idx = 0, // Reset the UART send frequency index
+    // measurement interpretation
+    .length_coefficient = flash_params.length_coefficient,
+  };
+  return 0;
 }

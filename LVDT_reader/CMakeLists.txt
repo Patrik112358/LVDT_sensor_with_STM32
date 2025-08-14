@@ -51,6 +51,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/Core/Src/lvdt.c
     ${CMAKE_SOURCE_DIR}/Core/Src/user_interface.c
     ${CMAKE_SOURCE_DIR}/Core/Src/goertzel.c
+    ${CMAKE_SOURCE_DIR}/Core/Src/onebutton.c
+    ${CMAKE_SOURCE_DIR}/Core/Src/flash.c
     ${CMAKE_SOURCE_DIR}/Libs/ssd1306/ssd1306.c
     ${CMAKE_SOURCE_DIR}/Libs/ssd1306/ssd1306_fonts.c
     ${CMAKE_SOURCE_DIR}/Libs/ssd1306/ssd1306_tests.c

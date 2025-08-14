@@ -31,7 +31,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "onebutton.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -41,12 +41,12 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-extern uint32_t tim6_prescaler;
-extern uint32_t tim6_period;
-extern uint32_t tim7_prescaler;
-extern uint32_t tim7_period;
+extern uint32_t     tim6_prescaler;
+extern uint32_t     tim6_period;
+extern uint32_t     tim7_prescaler;
+extern uint32_t     tim7_period;
 extern __IO uint8_t ubButtonPress;
-
+extern OnebuttonHandler_t onebutton_handle;
 
 /* USER CODE END EC */
 
