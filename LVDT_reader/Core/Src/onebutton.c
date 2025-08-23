@@ -3,43 +3,6 @@
 #include "debugtools.h"
 #include "stm32g4xx_hal.h"
 
-#define ONEBUTTON_RAW_EVENT_BUFFER_SIZE (4 * ONEBUTTON_PROCESSED_EVENT_BUFFER_SIZE)
-
-typedef struct {
-  ButtonEvent_t events[ONEBUTTON_PROCESSED_EVENT_BUFFER_SIZE]; // Array of button events
-  uint8_t       head; // Head of the queue
-  uint8_t       tail; // Tail of the queue
-  uint8_t       size; // Max size of the queue
-} ButtonEventQueue_t; // Circular queue for button events
-
-typedef enum {
-  RAW_BUTTON_ACTION_NONE = 0,
-  RAW_BUTTON_ACTION_PRESS,
-  RAW_BUTTON_ACTION_RELEASE,
-} RawButtonAction_t;
-
-typedef struct {
-  uint32_t          timestamp; // Timestamp of the event from HAL_GetTick()
-  RawButtonAction_t action; // Action of the button
-} RawButtonEvent_t; // Raw button event structure, records all presses and releases of the button
-
-typedef struct {
-  uint8_t          head; // Head of the queue
-  uint8_t          tail; // Tail of the queue
-  uint8_t          size; // Max size of the queue
-  RawButtonEvent_t events[ONEBUTTON_RAW_EVENT_BUFFER_SIZE]; // Array of raw button events
-} RawButtonEventQueue_t; // Circular queue for raw button events
-
-struct OnebuttonHandler {
-  OnebuttonHandlerInitParams_t params; // Initialization parameters for the Onebutton handler
-  GPIO_TypeDef                *GPIOx; // GPIO port where the button is connected
-  uint16_t                     GPIO_Pin; // GPIO pin where the button is connected
-  uint32_t                     last_press_time; // Timestamp of the last button press
-  uint32_t                     last_release_time; // Timestamp of the last button release
-  ButtonEventQueue_t           processed_events; // Queue for processed button events
-  RawButtonEventQueue_t        raw_events; // Queue for raw button events
-};
-
 int Onebutton_Init(OnebuttonHandler_t *handler, OnebuttonHandlerInitParams_t *params)
 {
   if (!handler || !params) {
@@ -52,13 +15,13 @@ int Onebutton_Init(OnebuttonHandler_t *handler, OnebuttonHandlerInitParams_t *pa
   handler->last_release_time = 0;
 
   // Initialize the processed events queue
-  handler->processed_events.head = 0;
-  handler->processed_events.tail = 0;
+  handler->processed_events.read_idx = 0;
+  handler->processed_events.count = 0;
   handler->processed_events.size = ONEBUTTON_PROCESSED_EVENT_BUFFER_SIZE;
 
   // Initialize the raw events queue
-  handler->raw_events.head = 0;
-  handler->raw_events.tail = 0;
+  handler->raw_events.read_idx = 0;
+  handler->raw_events.count = 0;
   handler->raw_events.size = ONEBUTTON_RAW_EVENT_BUFFER_SIZE;
 
   return 0;
@@ -66,14 +29,13 @@ int Onebutton_Init(OnebuttonHandler_t *handler, OnebuttonHandlerInitParams_t *pa
 
 OnebuttonHandlerInitParams_t Onebutton_GetDefaultInitParams(void)
 {
-  OnebuttonHandlerInitParams_t params = {
+  return (OnebuttonHandlerInitParams_t){
     .debounce_delay_ms = 50,
     .long_press_min_duration_ms = 1000,
     .double_click_max_delay_ms = 500,
     .GPIOx = NULL,
     .GPIO_Pin = 0,
   };
-  return params;
 }
 
 // Processes all processeable raw button events and pushes them to the processed queue.
@@ -83,35 +45,36 @@ int ProcessAllRawButtonEvents(OnebuttonHandler_t *handler);
 int ButtonEventQueue_Pop(ButtonEventQueue_t *queue, ButtonEvent_t *event);
 
 // Pushes a new processed button event to the queue. Returns 0 on success, -1 if the queue is full.
-int ButtonEventQueue_Push(ButtonEventQueue_t *queue, ButtonEvent_t event);
+int ButtonEventQueue_Push(ButtonEventQueue_t *queue, ButtonEvent_t const event);
 
-static inline int ButtonEventQueue_IsEmpty(ButtonEventQueue_t *queue)
+static inline int ButtonEventQueue_IsEmpty(ButtonEventQueue_t const *queue)
 {
-  return (queue->head == queue->tail);
+  return (0 == queue->count);
 }
 
-static inline int ButtonEventQueue_IsFull(ButtonEventQueue_t *queue)
+static inline int ButtonEventQueue_IsFull(ButtonEventQueue_t const *queue)
 {
-  return ((queue->head + 1) % queue->size == queue->tail);
+  return (queue->count == queue->size);
 }
 
 // Pops the next raw button event from the queue. Returns 0 on success, -1 if the queue is empty.
 int ButtonRawPressQueue_Pop(RawButtonEventQueue_t *queue, RawButtonEvent_t *event);
 
 // Peeks the next raw button event from the queue without removing it. Returns 0 on success, -1 if the queue is empty.
-int ButtonRawPressQueue_Peek(RawButtonEventQueue_t *queue, RawButtonEvent_t *event);
+int ButtonRawPressQueue_Peek(RawButtonEventQueue_t const *queue, RawButtonEvent_t *event);
 
 // Pushes a new raw button event to the queue. Returns 0 on success, -1 if the queue is full.
-int ButtonRawPressQueue_Push(RawButtonEventQueue_t *queue, RawButtonEvent_t event, uint8_t debounce_delay_ms);
+int ButtonRawPressQueue_Push(RawButtonEventQueue_t *queue, RawButtonEvent_t const event,
+    uint8_t const debounce_delay_ms);
 
-static inline int ButtonRawPressQueue_IsEmpty(RawButtonEventQueue_t *queue)
+static inline int ButtonRawPressQueue_IsEmpty(RawButtonEventQueue_t const *queue)
 {
-  return (queue->head == queue->tail);
+  return (0 == queue->count);
 }
 
-static inline int ButtonRawPressQueue_IsFull(RawButtonEventQueue_t *queue)
+static inline int ButtonRawPressQueue_IsFull(RawButtonEventQueue_t const *queue)
 {
-  return ((queue->head + 1) % ONEBUTTON_RAW_EVENT_BUFFER_SIZE == queue->tail);
+  return (queue->count == queue->size);
 }
 
 void Onebutton_InterruptHandler(OnebuttonHandler_t *handler)
@@ -124,7 +87,8 @@ void Onebutton_InterruptHandler(OnebuttonHandler_t *handler)
   } else if (GPIO_PIN_RESET == state) {
     raw_event.action = RAW_BUTTON_ACTION_RELEASE;
   }
-  ButtonRawPressQueue_Push(&handler->raw_events, raw_event, handler->params.debounce_delay_ms);
+  int ret = ButtonRawPressQueue_Push(&handler->raw_events, raw_event, handler->params.debounce_delay_ms);
+  if (ret < 0) { WARN_PRINT("Failed to push raw button event to the queue.\n"); }
   return;
 }
 
@@ -237,21 +201,23 @@ int ButtonEventQueue_Pop(ButtonEventQueue_t *queue, ButtonEvent_t *event)
     return -1; // Queue is empty
   }
 
-  *event = queue->events[queue->head];
-  queue->head = (queue->head + 1) % queue->size;
-
+  *event = queue->events[queue->read_idx];
+  queue->read_idx = (queue->read_idx + 1) % queue->size;
+  queue->count--;
   return 0;
 }
 
-int ButtonEventQueue_Push(ButtonEventQueue_t *queue, ButtonEvent_t event)
+int ButtonEventQueue_Push(ButtonEventQueue_t *queue, ButtonEvent_t const event)
 {
   if (ButtonEventQueue_IsFull(queue)) {
     return -1; // Queue is full
   }
+  if (0 == queue->count) {
+    queue->read_idx = 0; // Reset read index if queue was empty
+  }
 
-  queue->events[queue->tail] = event;
-  queue->tail = (queue->tail + 1) % queue->size;
-
+  queue->events[(queue->read_idx + queue->count) % queue->size] = event;
+  queue->count++;
   return 0;
 }
 
@@ -261,38 +227,40 @@ int ButtonRawPressQueue_Pop(RawButtonEventQueue_t *queue, RawButtonEvent_t *even
     return -1; // Queue is empty
   }
 
-  *event = queue->events[queue->head];
-  queue->head = (queue->head + 1) % queue->size;
-
+  *event = queue->events[queue->read_idx];
+  queue->read_idx = (queue->read_idx + 1) % queue->size;
+  queue->count--;
   return 0;
 }
 
-int ButtonRawPressQueue_Peek(RawButtonEventQueue_t *queue, RawButtonEvent_t *event)
+int ButtonRawPressQueue_Peek(RawButtonEventQueue_t const *queue, RawButtonEvent_t *event)
 {
   if (ButtonRawPressQueue_IsEmpty(queue)) {
     return -1; // Queue is empty
   }
 
-  *event = queue->events[queue->head];
+  *event = queue->events[queue->read_idx];
   return 0; // Successfully peeked the event
 }
 
-int ButtonRawPressQueue_Push(RawButtonEventQueue_t *queue, RawButtonEvent_t event, uint8_t debounce_delay_ms)
+int ButtonRawPressQueue_Push(RawButtonEventQueue_t *queue, RawButtonEvent_t const event, uint8_t debounce_delay_ms)
 {
   if (ButtonRawPressQueue_IsFull(queue)) {
     return -1; // Queue is full
   }
-
-  if (0 < debounce_delay_ms) {
-    RawButtonEvent_t last_event = queue->events[(queue->tail + queue->size - 1) % queue->size];
-    if (event.timestamp < last_event.timestamp + debounce_delay_ms) {
-      // Ignore the event if it is too close to the last event
-      return 0;
-    }
+  if (0 == queue->count) {
+    queue->read_idx = 0; // Reset read index if queue was empty
   }
 
-  queue->events[queue->tail] = event;
-  queue->tail = (queue->tail + 1) % queue->size;
+  // Debounce
+  if (0 < debounce_delay_ms && 0 < queue->last_valid_raw_event_time
+      && event.timestamp < queue->last_valid_raw_event_time + debounce_delay_ms) {
+    // Ignore the event if it is too close to the last valid event
+    return 0;
+  }
 
+  queue->events[(queue->read_idx + queue->count) % queue->size] = event;
+  queue->count++;
+  queue->last_valid_raw_event_time = event.timestamp; // Update the last valid raw event time
   return 0;
 }

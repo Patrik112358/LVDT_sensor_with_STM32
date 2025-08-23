@@ -11,6 +11,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <_ansi.h>
+#include <stdbool.h>
 
 _BEGIN_STD_C
 
@@ -155,15 +156,44 @@ typedef struct {
   const uint8_t* const  char_width; /**< Proportional character width in pixels (NULL for monospaced) */
 } SSD1306_Font_t;
 
+
 // Procedure definitions
 void ssd1306_Init(void);
 void ssd1306_Fill(SSD1306_COLOR color);
 void ssd1306_UpdateScreen(void);
 void ssd1306_DrawPixel(uint8_t x, uint8_t y, SSD1306_COLOR color);
 char ssd1306_WriteChar(char ch, SSD1306_Font_t Font, SSD1306_COLOR color);
-char ssd1306_WriteString(const char* str, SSD1306_Font_t Font, SSD1306_COLOR color);
-void ssd1306_SetCursor(uint8_t x, uint8_t y);
-void ssd1306_Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR color);
+/**
+ * @brief Draw 1 (partial) character to the screen buffer into (x,y)-(x+max_width,y+max_height)
+ * @param ch Character to be written
+ * @param top_left Top left coordinate of the text box
+ * @param bottom_right Bottom right coordinate of the text box. (-1,-1) means no bounding box (screen size is the only limitation)
+ * @param Font Font to be used for writing
+ * @param color Color setting (Black or White)
+ * @param allow_clipping Flag to enable/disable character clipping
+ * @return (.x = position.x + written width, .y = position.y + written height), i.e. bottom-right outside coord of used box
+ * On failure to fit character into specified box or screen with clipping disabled, returns (position.x, position.y)
+ */
+SSD1306_VERTEX ssd1306_WriteCharIntoBox(char ch, SSD1306_VERTEX top_left, SSD1306_VERTEX bottom_right,
+    SSD1306_Font_t Font, SSD1306_COLOR color, bool allow_clipping);
+char           ssd1306_WriteString(const char* str, SSD1306_Font_t Font, SSD1306_COLOR color);
+char ssd1306_WriteString_AllowClipping(const char* str, SSD1306_Font_t Font, SSD1306_COLOR color, bool allow_clipping);
+/**
+ * @brief Writes out multiline string at the coordinates (x,y), breking on newlines,
+ * allowing for partially displayed (clipped) characters
+ * @param str Pointer to the string to be written
+ * @param top_left Top left coordinate of the text box
+ * @param bottom_right Bottom right coordinate of the text box. (-1,-1) means no bounding box (screen size is the only limitation)
+ * @param Font Font to be used for writing
+ * @param color Color setting (Black or White)
+ * @param allow_clipping Flag to enable/disable character clipping
+ * @return (.x = position.x + used width, .y = position.y + used height), i.e. bottom-right outside coord of used box
+ * If clipping is disabled and the text does not fit into the box and/or screen, returns (position.x, position.y)
+ */
+SSD1306_VERTEX ssd1306_WriteMultilineStringIntoBox(const char* str, SSD1306_VERTEX top_left,
+    SSD1306_VERTEX bottom_right, SSD1306_Font_t Font, SSD1306_COLOR color, bool allow_clipping);
+void           ssd1306_SetCursor(uint8_t x, uint8_t y);
+void           ssd1306_Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR color);
 void ssd1306_DrawArc(uint8_t x, uint8_t y, uint8_t radius, uint16_t start_angle, uint16_t sweep, SSD1306_COLOR color);
 void ssd1306_DrawArcWithRadiusLine(uint8_t x, uint8_t y, uint8_t radius, uint16_t start_angle, uint16_t sweep,
     SSD1306_COLOR color);

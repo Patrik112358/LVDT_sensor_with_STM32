@@ -152,7 +152,7 @@ void UI_Init(void)
   ssd1306_Init();
   // ssd1306_TestFonts1_screen_info_PRINT();
   UI_UpdateScreen();
-  if (0 != UI_LoadStateParamsFromFlash(&ui_state)) { WARN_PRINT("UI state params load from flash failed."); }
+  if (0 != UI_LoadStateParamsFromFlash(&ui_state)) { INFO_PRINT("UI state params load from flash failed.\n"); }
 }
 
 
@@ -368,7 +368,7 @@ int UI_LoadStateParamsFromFlash(UI_state_t* ui_state)
   FLASH_store_object_v1_t flash_params = { .averaging_buffer_size = 1, .uart_send_period_n_measurements = 0 };
   int                     ret = read_flash_object_LVDT_reader_params_v1(&flash_params);
   if (ret < 0) {
-    WARN_PRINT("Failed to read UI state params from flash\n");
+    DEBUG_PRINT("Failed to read UI state params from flash\n");
     return ret;
   }
   // ui_state->length_coefficient = flash_params.length_coefficient;
@@ -385,4 +385,79 @@ int UI_LoadStateParamsFromFlash(UI_state_t* ui_state)
     .length_coefficient = flash_params.length_coefficient,
   };
   return 0;
+}
+
+void UIMenu_DisplayFolderCarousel(void)
+{
+  if (NULL == ui_menu.current_item || NULL == ui_menu.current_item->first_child_item) {
+    WARN_PRINT("No current item or no child items to display in carousel.\n");
+    return;
+  }
+  unsigned total_items = 1;
+  unsigned highlighted_item_index = 1;
+
+  const UI_MenuItem_t* const highlighted_item = ui_menu.current_item->highlighted_child_item;
+
+  const UI_MenuItem_t* left = NULL;
+  const UI_MenuItem_t* middle = NULL;
+  const UI_MenuItem_t* right = NULL;
+
+  right = ui_menu.current_item->first_child_item;
+  while (highlighted_item != right && NULL != right) {
+    left = middle;
+    middle = right;
+    right = right->next_sibling;
+    total_items++;
+    highlighted_item_index++;
+  }
+
+  { // find total number of items
+    const UI_MenuItem_t* last_child = right;
+    while (last_child->next_sibling != NULL) {
+      last_child = last_child->next_sibling;
+      total_items++;
+    }
+  }
+
+  if (total_items < 3) {
+    for (unsigned i = 0; i < total_items; i++) {
+      left = middle;
+      middle = right;
+      right = NULL;
+    }
+  }
+
+  // Display the carousel of child items
+  UIMenu_DisplaySingleItemCarouselLabel(0, 11, left ? left->item_carousel_label : NULL);
+  UIMenu_DisplaySingleItemCarouselLabel(43, 11, middle ? middle->item_carousel_label : NULL);
+  UIMenu_DisplaySingleItemCarouselLabel(87, 11, right ? right->item_carousel_label : NULL);
+
+  if (highlighted_item == left) { ssd1306_InvertRectangle(0, 10, 0, 34); }
+  if (highlighted_item == middle) {
+    ssd1306_InvertRectangle(41, 10, 84, 34);
+  } else {
+    ssd1306_Line(41, 10, 41, 34, White);
+  }
+  if (highlighted_item == right) { ssd1306_InvertRectangle(86, 10, 127, 34); }
+  ssd1306_Line(185, 10, 185, 34, White);
+
+  
+}
+
+void UIMenu_DisplaySingleItemCarouselLabel(unsigned x, unsigned y, const char* str)
+{
+  if (NULL == str) { return; }
+  // Display the multiline string at the specified coordinates
+  char line[8] = { 0 };
+  for (unsigned row = 0; row < 3 && NULL != str && '\0' != *str; row++) {
+    for (unsigned column = 0; column < 7 && '\0' != *str && '\n' != *str; column++) {
+      line[column] = *str;
+      str++;
+    }
+    while ('\0' != *str && '\n' != *str) { str++; } // Consume rest of the line (beyond 7ch limit)
+    if ('\n' == *str) { str++; } // Skip the newline character
+    line[7] = '\0'; // Null-terminate the string
+    ssd1306_SetCursor(x, y + 8 * row);
+    ssd1306_WriteString(line, Font_6x8, White);
+  }
 }

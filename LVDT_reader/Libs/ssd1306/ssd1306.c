@@ -1,5 +1,6 @@
 #include "ssd1306.h"
 #include <math.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h> // For memcpy
 
@@ -23,6 +24,16 @@ void ssd1306_WriteData(uint8_t* buffer, size_t buff_size)
 }
 
 #elif defined(SSD1306_USE_SPI)
+
+/**
+ * @brief Check if a pixel is within the bounding box and screen limits
+ * @param px Pixel coordinate to check
+ * @param box_top_left Top left coordinate of the bounding box
+ * @param box_bottom_right Bottom right coordinate of the bounding box. (.x=-1,.y=-1) means unlimited box
+ * @return true if the pixel is within the box and screen, false otherwise
+ */
+bool static inline is_px_within_box_and_screen(SSD1306_VERTEX px, SSD1306_VERTEX box_top_left,
+    SSD1306_VERTEX box_bottom_right);
 
 void ssd1306_Reset(void)
 {
@@ -225,42 +236,67 @@ void ssd1306_DrawPixel(uint8_t x, uint8_t y, SSD1306_COLOR color)
 
 /*
  * Draw 1 char to the screen buffer
- * ch       => char om weg te schrijven
- * Font     => Font waarmee we gaan schrijven
+ * ch       => char to be written
+ * Font     => Font to be used for writing
  * color    => Black or White
  */
 char ssd1306_WriteChar(char ch, SSD1306_Font_t Font, SSD1306_COLOR color)
 {
-  uint32_t i, b, j;
+  SSD1306_VERTEX top_left = (SSD1306_VERTEX){ .x = SSD1306.CurrentX, .y = SSD1306.CurrentY };
+  SSD1306_VERTEX next_px_to_write =
+      ssd1306_WriteCharIntoBox(ch, top_left, (SSD1306_VERTEX){ .x = -1, .y = -1 }, Font, color, false);
+  const uint8_t char_width = Font.char_width ? Font.char_width[ch - 32] : Font.width;
+  const uint8_t char_height = Font.height;
+  bool success = next_px_to_write.x == (top_left.x + char_width) && next_px_to_write.y == (top_left.y + char_height);
+  if (success) {
+    SSD1306.CurrentX += char_width;
+    return ch;
+  } else {
+    return 0;
+  }
+}
+
+SSD1306_VERTEX ssd1306_WriteCharIntoBox(char ch, SSD1306_VERTEX top_left, SSD1306_VERTEX bottom_right,
+    SSD1306_Font_t Font, SSD1306_COLOR color, bool allow_clipping)
+{
+  uint32_t char_y, char_bitmap_row, char_x;
 
   // Check if character is valid
-  if (ch < 32 || ch > 126) return 0;
+  if (ch < 32 || ch > 126) return top_left;
 
   // Char width is not equal to font width for proportional font
   const uint8_t char_width = Font.char_width ? Font.char_width[ch - 32] : Font.width;
   // Check remaining space on current line
-  if (SSD1306_WIDTH < (SSD1306.CurrentX + char_width) || SSD1306_HEIGHT < (SSD1306.CurrentY + Font.height)) {
+  if (false == allow_clipping
+      && (!is_px_within_box_and_screen(top_left, top_left, bottom_right)
+          || !is_px_within_box_and_screen(
+              (SSD1306_VERTEX){
+                  top_left.x + char_width - 1,
+                  top_left.y + Font.height - 1,
+              },
+              top_left, bottom_right))) {
     // Not enough space on current line
-    return 0;
+    return top_left;
   }
 
   // Use the font to write
-  for (i = 0; i < Font.height; i++) {
-    b = Font.data[(ch - 32) * Font.height + i];
-    for (j = 0; j < char_width; j++) {
-      if ((b << j) & 0x8000) {
-        ssd1306_DrawPixel(SSD1306.CurrentX + j, (SSD1306.CurrentY + i), (SSD1306_COLOR)color);
-      } else {
-        ssd1306_DrawPixel(SSD1306.CurrentX + j, (SSD1306.CurrentY + i), (SSD1306_COLOR)!color);
+  SSD1306_VERTEX px_to_write = { top_left.x, top_left.y };
+  for (char_y = 0; char_y < Font.height; char_y++) {
+    char_bitmap_row = Font.data[(ch - 32) * Font.height + char_y];
+    px_to_write.x = top_left.x;
+    for (char_x = 0; char_x < char_width; char_x++) {
+      SSD1306_COLOR px_color = !color;
+      if ((char_bitmap_row << char_x) & 0x8000) { px_color = color; }
+      // unsigned px_x = position.x + char_x;
+      // unsigned px_y = position.y + char_y;
+      if (is_px_within_box_and_screen(px_to_write, top_left, bottom_right)) {
+        ssd1306_DrawPixel(px_to_write.x, px_to_write.y, (SSD1306_COLOR)px_color);
       }
+      px_to_write.x++;
     }
+    px_to_write.y++;
   }
-
-  // The current space is now taken
-  SSD1306.CurrentX += char_width;
-
-  // Return written char for validation
-  return ch;
+  return px_to_write;
 }
 
 /* Write full string to screenbuffer */
@@ -591,4 +627,66 @@ void ssd1306_SetDisplayOn(const uint8_t on)
 uint8_t ssd1306_GetDisplayOn(void)
 {
   return SSD1306.DisplayOn;
+}
+
+SSD1306_VERTEX ssd1306_WriteMultilineStringIntoBox(const char* str, SSD1306_VERTEX top_left,
+    SSD1306_VERTEX bottom_right, SSD1306_Font_t Font, SSD1306_COLOR color, bool allow_clipping)
+{
+  if (NULL == str) { return top_left; }
+  // Create backup buffer to unroll changes if clipping is disabled and text does not fit
+  typeof(SSD1306_Buffer)* backup_buffer_ptr = NULL;
+  if (!allow_clipping) {
+    typeof(SSD1306_Buffer) backup_buffer;
+    memcpy(backup_buffer, SSD1306_Buffer, sizeof(SSD1306_Buffer));
+    backup_buffer_ptr = &backup_buffer;
+  }
+
+  // Display the multiline string at the specified coordinates
+  bool           string_did_not_fit = false;
+  SSD1306_VERTEX current_pos = top_left;
+  SSD1306_VERTEX envelope_bottom_right = top_left;
+  while (str != NULL && *str != '\0') {
+    if (*str == '\n') {
+      current_pos.x = top_left.x; // CR
+      current_pos.y += Font.height; // LF
+      continue;
+    }
+    const uint8_t        char_width = Font.char_width ? Font.char_width[*str - 32] : Font.width;
+    const SSD1306_VERTEX next_pos =
+        ssd1306_WriteCharIntoBox(*str, current_pos, bottom_right, Font, color, allow_clipping);
+    if (next_pos.x == current_pos.x && next_pos.y == current_pos.y && !allow_clipping) {
+      string_did_not_fit = true;
+      break;
+    }
+    if (next_pos.x > envelope_bottom_right.x) { envelope_bottom_right.x = next_pos.x; }
+    if (next_pos.y > envelope_bottom_right.y) { envelope_bottom_right.y = next_pos.y; }
+    if (next_pos.x < current_pos.x + char_width - 1) {
+      // Char was clipped horizontally, proceed to next line
+      string_did_not_fit = true;
+      while (*str != '\n' && *str != '\0') { str++; }
+    }
+    if (next_pos.y < current_pos.y + Font.height - 1) {
+      // Char was clipped vertically, proceed to end of str
+      string_did_not_fit = true;
+      while (*str != '\0') { str++; }
+    }
+    current_pos = next_pos;
+    str++;
+  }
+
+  if (string_did_not_fit && !allow_clipping && NULL != backup_buffer_ptr) {
+    // Restore backup buffer
+    memcpy(SSD1306_Buffer, backup_buffer_ptr, sizeof(SSD1306_Buffer));
+    return top_left;
+  }
+  return envelope_bottom_right;
+}
+
+
+bool static inline is_px_within_box_and_screen(SSD1306_VERTEX px, SSD1306_VERTEX box_top_left,
+    SSD1306_VERTEX box_bottom_right)
+{
+  return (px.x >= 0 && px.y >= 0 && px.x < SSD1306_WIDTH && px.y < SSD1306_HEIGHT && px.x >= box_top_left.x
+          && px.y >= box_top_left.y && (box_bottom_right.x == (uint8_t)-1 || px.x <= box_bottom_right.x)
+          && (box_bottom_right.y == (uint8_t)-1 || px.y <= box_bottom_right.y));
 }

@@ -2,6 +2,7 @@
 #define USER_INTERFACE_H
 
 #include <stdint.h>
+#include <sys/_types.h>
 #include "main.h"
 #include "ssd1306.h"
 
@@ -36,6 +37,57 @@ typedef struct {
   const SSD1306_Font_t* font;
   uint8_t               row_length;
 } UI_params_t;
+
+typedef struct UI_MenuItem UI_MenuItem_t;
+struct UI_MenuItem {
+  // Menu will build path from this, only last 16chars of path are visible
+  const char* const short_label_menu_path;
+  // Self-presentation function of this item.
+  // Should redraw screen from (0,10) to (128,64).
+  void (*update_screen_fn)(void);
+
+  // Used by parent.
+  // Item's label that fits into 7x3 chars rectangle.
+  const char* const item_carousel_label;
+  // Used by parent.
+  // Item's longer description that fits into 21x3 chars rectangle.
+  // If null, return of `detailed_description_fn` will be used.
+  const char* const detailed_description;
+  // Used by parent.
+  // Function to provide `detailed_description` or draw graphics.
+  // Has to directly call to screen drawing functions to update screen buffer
+  // (but should not call for screen refresh).
+  // Should take care to only update the region between (0,36) and (128,64) pixels.
+  // The preceding line (pixels (0,35) to (128,35)) is filled in.
+  void (*detailed_description_fn)(void);
+
+  // Parent item
+  const UI_MenuItem_t* const parent_item;
+  // Child items (submenus, actions, settable-items)
+  const UI_MenuItem_t* const first_child_item;
+  // Currently selected child item
+  const UI_MenuItem_t* highlighted_child_item;
+  // Next sibling item
+  const UI_MenuItem_t* const next_sibling;
+
+  // Gets called on short button press
+  void (*short_btn_press)(void);
+  // Gets called on long button press
+  void (*long_btn_press)(void);
+};
+
+typedef struct {
+  const UI_MenuItem_t* const root;
+  const UI_MenuItem_t*       current_item;
+} UI_Menu_t;
+
+extern UI_Menu_t ui_menu;
+
+// Used as `UI_MenuItem.update_screen_fn`.
+// Displays child items as a carousel with movable selection.
+void UIMenu_DisplayFolderCarousel(void);
+// Displays a single item label (7x3 characters) in the carousel.
+void UIMenu_DisplaySingleItemCarouselLabel(unsigned x, unsigned y, const char* str);
 
 // extern ScreenContents_t screen_contents;
 

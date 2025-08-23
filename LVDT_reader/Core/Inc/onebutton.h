@@ -84,4 +84,44 @@ int Onebutton_HasEvents(OnebuttonHandler_t *handler);
  */
 void Onebutton_InterruptHandler(OnebuttonHandler_t *handler);
 
+
+// Rest of this header should've been opaque, but without dynamic memoory it'd quickly become unnecessary mess
+#define ONEBUTTON_RAW_EVENT_BUFFER_SIZE (4 * ONEBUTTON_PROCESSED_EVENT_BUFFER_SIZE)
+
+typedef struct {
+  uint8_t       read_idx; // Head of the queue
+  uint8_t       count; // Number of entries
+  uint8_t       size; // Maximum number of entries of the queue
+  ButtonEvent_t events[ONEBUTTON_PROCESSED_EVENT_BUFFER_SIZE]; // Array of button events
+} ButtonEventQueue_t; // Circular queue for button events
+
+typedef enum {
+  RAW_BUTTON_ACTION_NONE = 0,
+  RAW_BUTTON_ACTION_PRESS,
+  RAW_BUTTON_ACTION_RELEASE,
+} RawButtonAction_t;
+
+typedef struct {
+  uint32_t          timestamp; // Timestamp of the event from HAL_GetTick()
+  RawButtonAction_t action; // Action of the button
+} RawButtonEvent_t; // Raw button event structure, records all presses and releases of the button
+
+typedef struct {
+  uint32_t         last_valid_raw_event_time; // Timestamp of the last not-ignored raw event
+  uint8_t          read_idx; // Head of the queue
+  uint8_t          count; // Number of entries
+  uint8_t          size; // Maximum number of entries of the queue
+  RawButtonEvent_t events[ONEBUTTON_RAW_EVENT_BUFFER_SIZE]; // Array of raw button events
+} RawButtonEventQueue_t; // Circular queue for raw button events
+
+struct OnebuttonHandler {
+  OnebuttonHandlerInitParams_t params; // Initialization parameters for the Onebutton handler
+  GPIO_TypeDef                *GPIOx; // GPIO port where the button is connected
+  uint16_t                     GPIO_Pin; // GPIO pin where the button is connected
+  uint32_t                     last_press_time; // Timestamp of the last button press
+  uint32_t                     last_release_time; // Timestamp of the last button release
+  ButtonEventQueue_t           processed_events; // Queue for processed button events
+  RawButtonEventQueue_t        raw_events; // Queue for raw button events
+};
+
 #endif // ONEBUTTON_H
