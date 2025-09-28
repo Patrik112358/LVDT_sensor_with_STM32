@@ -148,6 +148,21 @@ typedef struct {
   uint8_t y;
 } SSD1306_VERTEX;
 
+typedef struct {
+  SSD1306_VERTEX top_left;
+  SSD1306_VERTEX bottom_right;
+} SSD1306_BOX;
+
+typedef struct {
+  SSD1306_VERTEX a;
+  SSD1306_VERTEX b;
+} SSD1306_LINE;
+#define SSD1306_SENTINEL_LINE_INITIALIZER { { -1, -1 }, { -1, -1 } }
+extern const SSD1306_LINE SSD1306_SENTINEL_LINE;
+
+// Must be terminated with special SSD1306_SENTINEL_LINE object
+typedef SSD1306_LINE SSD1306_LINE_LIST[];
+
 /** Font */
 typedef struct {
   const uint8_t         width; /**< Font width in pixels */
@@ -190,10 +205,23 @@ char ssd1306_WriteString_AllowClipping(const char* str, SSD1306_Font_t Font, SSD
  * @return (.x = position.x + used width, .y = position.y + used height), i.e. bottom-right outside coord of used box
  * If clipping is disabled and the text does not fit into the box and/or screen, returns (position.x, position.y)
  */
-SSD1306_VERTEX ssd1306_WriteMultilineStringIntoBox(const char* str, SSD1306_VERTEX top_left,
-    SSD1306_VERTEX bottom_right, SSD1306_Font_t Font, SSD1306_COLOR color, bool allow_clipping);
-void           ssd1306_SetCursor(uint8_t x, uint8_t y);
-void           ssd1306_Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR color);
+SSD1306_VERTEX        ssd1306_WriteMultilineStringIntoBox(const char* str, SSD1306_VERTEX top_left,
+           SSD1306_VERTEX bottom_right, SSD1306_Font_t Font, SSD1306_COLOR color, bool allow_clipping);
+inline SSD1306_VERTEX ssd1306_WriteMultilineStringIntoBox_Box(const char* str, SSD1306_BOX bounding_box,
+    SSD1306_Font_t Font, SSD1306_COLOR color, bool allow_clipping)
+{
+  return ssd1306_WriteMultilineStringIntoBox(str, bounding_box.top_left, bounding_box.bottom_right, Font, color,
+      allow_clipping);
+}
+void ssd1306_SetCursor(uint8_t x, uint8_t y);
+void ssd1306_Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR color);
+/**
+ * @brief Draw multiple lines on the screen.
+ * @param line_list List of lines to draw.
+ * @param color Color of the lines.
+ * @return Number of lines drawn.
+ */
+int  ssd1306_MultipleLines(const SSD1306_LINE_LIST line_list, SSD1306_COLOR color);
 void ssd1306_DrawArc(uint8_t x, uint8_t y, uint8_t radius, uint16_t start_angle, uint16_t sweep, SSD1306_COLOR color);
 void ssd1306_DrawArcWithRadiusLine(uint8_t x, uint8_t y, uint8_t radius, uint16_t start_angle, uint16_t sweep,
     SSD1306_COLOR color);
@@ -213,6 +241,15 @@ void ssd1306_FillRectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD13
  * @return SSD1306_Error_t status
  */
 SSD1306_Error_t ssd1306_InvertRectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2);
+/**
+ * @brief Invert color of pixels in rectangle (include border)
+ * @param box Bounding box to invert
+ * @return SSD1306_Error_t status
+ */
+inline SSD1306_Error_t ssd1306_InvertRectangle_Box(SSD1306_BOX box)
+{
+  return ssd1306_InvertRectangle(box.top_left.x, box.top_left.y, box.bottom_right.x, box.bottom_right.y);
+}
 
 void ssd1306_DrawBitmap(uint8_t x, uint8_t y, const unsigned char* bitmap, uint8_t w, uint8_t h, SSD1306_COLOR color);
 

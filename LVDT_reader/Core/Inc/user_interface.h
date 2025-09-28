@@ -43,8 +43,8 @@ struct UI_MenuItem {
   // Menu will build path from this, only last 16chars of path are visible
   const char* const short_label_menu_path;
   // Self-presentation function of this item.
-  // Should redraw screen from (0,10) to (128,64).
-  void (*update_screen_fn)(void);
+  // Should redraw screen from (0,10) to (127,63).
+  void (*update_screen_fn)(const UI_MenuItem_t* self);
 
   // Used by parent.
   // Item's label that fits into 7x3 chars rectangle.
@@ -65,8 +65,6 @@ struct UI_MenuItem {
   const UI_MenuItem_t* const parent_item;
   // Child items (submenus, actions, settable-items)
   const UI_MenuItem_t* const first_child_item;
-  // Currently selected child item
-  const UI_MenuItem_t* highlighted_child_item;
   // Next sibling item
   const UI_MenuItem_t* const next_sibling;
 
@@ -77,21 +75,48 @@ struct UI_MenuItem {
 };
 
 typedef struct {
+  SSD1306_BOX path_bar;
+  SSD1306_BOX page_counter;
+  // SSD1306_LINE lines[];
+  SSD1306_LINE_LIST lines;
+} UIWireframe_PathbarItemcounter_t;
+extern const UIWireframe_PathbarItemcounter_t ui_wireframe_pathbar_itemcounter;
+
+typedef struct {
+  SSD1306_BOX  item_left;
+  SSD1306_BOX  item_middle;
+  SSD1306_BOX  item_right;
+  SSD1306_BOX  item_detail;
+  SSD1306_BOX  highlight_rect_left;
+  SSD1306_BOX  highlight_rect_middle;
+  SSD1306_BOX  highlight_rect_right;
+  SSD1306_LINE lines[];
+} UIWireframe_CarouselScreen_t;
+extern const UIWireframe_CarouselScreen_t ui_wireframe_carousel_screen;
+
+typedef struct {
   const UI_MenuItem_t* const root;
   const UI_MenuItem_t*       current_item;
+  const UI_MenuItem_t*       highlighted_child_item; // Selected child item of `current_item`
+  OnebuttonHandler_t*        onebutton_handle;
 } UI_Menu_t;
 
 extern UI_Menu_t ui_menu;
 
+void UIMenu_Carousel_NextItem(void);
+void UIMenu_Carousel_SelectItem(void);
+void UIMenu_Run(void);
+
+void UIMenu_DisplayPathbarItemcount(void);
 // Used as `UI_MenuItem.update_screen_fn`.
 // Displays child items as a carousel with movable selection.
-void UIMenu_DisplayFolderCarousel(void);
+void UIMenu_DisplayFolderCarousel(const UI_MenuItem_t* self);
 // Displays a single item label (7x3 characters) in the carousel.
 void UIMenu_DisplaySingleItemCarouselLabel(unsigned x, unsigned y, const char* str);
 
 // extern ScreenContents_t screen_contents;
 
-void UI_Init(void);
+void UI_Init(OnebuttonHandler_t* handler);
 // Prints prepared item buffers to screen
 void UI_UpdateScreen(void);
 // Updates the items' buffers with the latest values

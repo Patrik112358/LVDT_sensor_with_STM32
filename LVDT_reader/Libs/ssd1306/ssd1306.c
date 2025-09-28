@@ -25,6 +25,13 @@ void ssd1306_WriteData(uint8_t* buffer, size_t buff_size)
 
 #elif defined(SSD1306_USE_SPI)
 
+const SSD1306_LINE SSD1306_SENTINEL_LINE = SSD1306_SENTINEL_LINE_INITIALIZER;
+bool               lines_are_same(const SSD1306_LINE* first, const SSD1306_LINE* second)
+{
+  return first->a.x == second->a.x && first->a.y == second->a.y && first->b.x == second->b.x
+      && first->b.y == second->b.y;
+}
+
 /**
  * @brief Check if a pixel is within the bounding box and screen limits
  * @param px Pixel coordinate to check
@@ -32,7 +39,7 @@ void ssd1306_WriteData(uint8_t* buffer, size_t buff_size)
  * @param box_bottom_right Bottom right coordinate of the bounding box. (.x=-1,.y=-1) means unlimited box
  * @return true if the pixel is within the box and screen, false otherwise
  */
-bool static inline is_px_within_box_and_screen(SSD1306_VERTEX px, SSD1306_VERTEX box_top_left,
+inline static bool is_px_within_box_and_screen(SSD1306_VERTEX px, SSD1306_VERTEX box_top_left,
     SSD1306_VERTEX box_bottom_right);
 
 void ssd1306_Reset(void)
@@ -291,8 +298,14 @@ SSD1306_VERTEX ssd1306_WriteCharIntoBox(char ch, SSD1306_VERTEX top_left, SSD130
       // unsigned px_y = position.y + char_y;
       if (is_px_within_box_and_screen(px_to_write, top_left, bottom_right)) {
         ssd1306_DrawPixel(px_to_write.x, px_to_write.y, (SSD1306_COLOR)px_color);
+      } else {
+        break;
       }
       px_to_write.x++;
+    }
+    if (px_to_write.x == top_left.x) {
+      // Nowhere to write horizontally
+      break;
     }
     px_to_write.y++;
   }
@@ -347,6 +360,18 @@ void ssd1306_Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR 
     }
   }
   return;
+}
+
+int ssd1306_MultipleLines(const SSD1306_LINE_LIST line_list, SSD1306_COLOR color)
+{
+  const SSD1306_LINE* current_line = line_list;
+  int                 lines_drawn = 0;
+  while (NULL != current_line && !lines_are_same(&SSD1306_SENTINEL_LINE, current_line)) {
+    ssd1306_Line(current_line->a.x, current_line->a.y, current_line->b.x, current_line->b.y, color);
+    current_line++;
+    lines_drawn++;
+  }
+  return lines_drawn;
 }
 
 /* Draw polyline */
@@ -649,6 +674,7 @@ SSD1306_VERTEX ssd1306_WriteMultilineStringIntoBox(const char* str, SSD1306_VERT
     if (*str == '\n') {
       current_pos.x = top_left.x; // CR
       current_pos.y += Font.height; // LF
+      str++;
       continue;
     }
     const uint8_t        char_width = Font.char_width ? Font.char_width[*str - 32] : Font.width;
@@ -670,7 +696,7 @@ SSD1306_VERTEX ssd1306_WriteMultilineStringIntoBox(const char* str, SSD1306_VERT
       string_did_not_fit = true;
       while (*str != '\0') { str++; }
     }
-    current_pos = next_pos;
+    current_pos.x = next_pos.x;
     str++;
   }
 
@@ -683,7 +709,7 @@ SSD1306_VERTEX ssd1306_WriteMultilineStringIntoBox(const char* str, SSD1306_VERT
 }
 
 
-bool static inline is_px_within_box_and_screen(SSD1306_VERTEX px, SSD1306_VERTEX box_top_left,
+inline static bool is_px_within_box_and_screen(SSD1306_VERTEX px, SSD1306_VERTEX box_top_left,
     SSD1306_VERTEX box_bottom_right)
 {
   return (px.x >= 0 && px.y >= 0 && px.x < SSD1306_WIDTH && px.y < SSD1306_HEIGHT && px.x >= box_top_left.x

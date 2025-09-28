@@ -123,9 +123,10 @@ int main(void)
   Onebutton_Init(&onebutton_handle, &onebutton_init_params);
   LVDT_Init();
   DEBUG_PRINT("Peripherals initialized.\n");
-  UI_Init();
+  UI_Init(&onebutton_handle);
   DEBUG_PRINT("UI initialized.\n");
   WARN_PRINT("Please press button to start...\n");
+  UIMenu_Run();
   WaitForUserButtonPress();
   INFO_PRINT("Starting operation.\n");
   UI_Update();
@@ -134,6 +135,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1) {
     if (buffer_ready_for_processing) {
       LVDT_ProcessData();
