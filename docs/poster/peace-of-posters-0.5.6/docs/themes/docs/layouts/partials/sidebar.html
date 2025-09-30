@@ -1,0 +1,85 @@
+{{- $page := . }}
+{{- $menuID := "main" }}
+
+{{- with index site.Menus $menuID }}
+<div class="sidenav">
+  {{- partial "inline/sidebar/walk.html" (dict "page" $page "menuEntries" .) }}
+</div>
+{{ end }}
+
+
+<script>
+/* Loop through all dropdown buttons to toggle between hiding and showing its dropdown content.
+This allows the user to have multiple dropdowns without any conflict */
+var dropdown = document.getElementsByClassName("dropdown-btn");
+var i;
+
+for (i = 0; i < dropdown.length; i++) {
+    dropdown[i].addEventListener("click", function() {
+      this.classList.toggle("expanded");
+      this.attributes["expanded"] = true;
+      var dropdownContent = this.nextElementSibling;
+      dropdownContent.classList.toggle("hidden");
+      /* if (dropdownContent.style.display === "block") {
+        dropdownContent.style.display = "none";
+      } else {
+        dropdownContent.style.display = "block";
+      }*/
+    });
+}
+</script>
+
+{{- define "partials/inline/sidebar/walk.html" }}
+  {{- $page := .page }}
+  {{- range .menuEntries }}
+    {{- $attrs := dict "href" .URL}}
+    {{- $attrs_button := dict "class" "dropdown-btn" }}
+    {{- $attrs_image := dict "class" "arrow-menu" }}
+    {{- $attrs_container := dict "class" "dropdown-container hidden" }}
+    {{- if $page.IsMenuCurrent .Menu . }}
+      {{- $attrs = merge $attrs (dict "class" "active" "aria-current" "page") }}
+      {{- $attrs_button = merge $attrs_button (dict "class" "dropdown-btn ancestor expanded") }}
+      {{- $attrs_image = merge $attrs_image (dict "class" "arrow-menu expanded")}}
+      {{- $attrs_container = merge $attrs_container (dict "class" "dropdown-container") }}
+    {{- else if $page.HasMenuCurrent .Menu .}}
+      {{- $attrs = merge $attrs (dict "class" "ancestor" "aria-current" "true") }}
+      {{- $attrs_button = merge $attrs_button (dict "class" "dropdown-btn expanded") }}
+      {{- $attrs_image = merge $attrs_image (dict "class" "arrow-menu expanded")}}
+      {{- $attrs_container = merge $attrs_container (dict "class" "dropdown-container") }}
+    {{- end }}
+
+    <div class="entry-formatter">
+    <a
+      {{- range $k, $v := $attrs }}
+        {{- with $v }}
+          {{- printf " %s=%q" $k $v | safeHTMLAttr }}
+        {{- end }}
+      {{- end -}}
+    >{{ or (T .Identifier) .Name | safeHTML }}</a>
+    {{- with .Children }}
+        <button
+        {{- range $k, $v := $attrs_button }}
+          {{- with $v }}
+              {{- printf " %s=%q" $k $v | safeHTMLAttr }}
+          {{- end }}
+          {{- end -}}><img
+            {{- range $k, $v := $attrs_image }}
+              {{- with $v }}
+                {{- printf " %s=%q" $k $v | safeHTMLAttr }}
+              {{- end }}
+            {{- end -}}
+          src="/peace-of-posters/arrow-menu.svg">
+        </button>
+        <div
+          {{- range $k, $v := $attrs_container }}
+            {{- with $v }}
+                {{- printf " %s=%q" $k $v | safeHTMLAttr }}
+            {{- end }}
+          {{- end -}}
+        >
+          {{- partial "inline/sidebar/walk.html" (dict "page" $page "menuEntries" .) }}
+        </div>
+    {{- end }}
+    </div>
+  {{- end }}
+{{- end }}

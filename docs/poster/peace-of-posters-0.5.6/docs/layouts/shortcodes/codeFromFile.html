@@ -1,0 +1,29 @@
+<!-- File -->
+{{ $file := (.Get "file") }}
+{{ .Scratch.Set "file" $file }}
+
+<!-- Start -->
+{{ $start := 0 }}
+{{ if (.Get "start") }}
+{{ $start = math.Sub (int (.Get "start")) 1 }}
+{{ end }}
+{{ .Scratch.Set "start" $start }}
+
+<!-- End -->
+{{ .Scratch.Set "end" (.Get "end") }}
+
+<!-- Language -->
+{{ $lang := "typst" }}
+{{ if (.Get "lang") }}
+{{ $lang = (.Get "lang") }}
+{{ end }}
+{{ .Scratch.Set "lang" $lang }}
+
+<!-- Highlight args -->
+{{ .Scratch.Set "options" (.Get "options") }}
+
+{{ $filename := (.Get "filename") | default "" }}
+{{ .Scratch.Set "filename" $filename }}
+
+<!-- Pass all arguments to the partial via scratch -->
+{{ partial "codeFromFile.html" .  }}

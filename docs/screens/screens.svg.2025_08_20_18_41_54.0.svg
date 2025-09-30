@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="128"
+   height="64"
+   viewBox="0 0 128 64"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.2 (1:1.4.2+202505120738+ebf0e940d0)"
+   sodipodi:docname="screens.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="false"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="px"
+     inkscape:zoom="4.3370505"
+     inkscape:cx="88.078292"
+     inkscape:cy="42.30986"
+     inkscape:window-width="1707"
+     inkscape:window-height="982"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g30"
+     showguides="false" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="background"
+     inkscape:groupmode="layer"
+     id="layer1"
+     sodipodi:insensitive="true"
+     style="display:inline">
+    <rect
+       style="fill:#000000"
+       id="rect1"
+       width="128"
+       height="64"
+       x="0"
+       y="0"
+       inkscape:label="rect1" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="run_mode"
+     style="display:none">
+    <text
+       xml:space="preserve"
+       style="font-size:8px;line-height:6px;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000"
+       x="1"
+       y="7.9999847"
+       id="text1"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:8px;line-height:6px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';letter-spacing:0px;fill:#ffffff;fill-opacity:1"
+         sodipodi:role="line"
+         id="tspan9"
+         x="1"
+         y="7.9999847">primDrvFrq ###.###kHz</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:8px;line-height:6px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';letter-spacing:0px;fill:#ffffff;fill-opacity:1"
+         sodipodi:role="line"
+         id="tspan2"
+         x="1"
+         y="15.92186">secSampFrq####.###kHz</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:8px;line-height:6px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';letter-spacing:0px;fill:#ffffff;fill-opacity:1"
+         sodipodi:role="line"
+         id="tspan11"
+         x="1"
+         y="23.843735">sec1 amp    #.#### V </tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:8px;line-height:6px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';letter-spacing:0px;fill:#ffffff;fill-opacity:1"
+         sodipodi:role="line"
+         id="tspan4"
+         x="1"
+         y="31.76561">sec2 amp    #.#### V </tspan><tspan
+         sodipodi:role="line"
+         x="1"
+         y="39.687485"
+         id="tspan6"
+         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:8px;line-height:6px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';letter-spacing:0px;fill:#ffffff;fill-opacity:1">position    ##.### mm</tspan><tspan
+         sodipodi:role="line"
+         x="1"
+         y="47.60936"
+         id="tspan8"
+         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:8px;line-height:6px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';letter-spacing:0px;fill:#ffffff;fill-opacity:1">bufs skip'd###.### /s</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:7px;font-family:OLED_pixels;-inkscape-font-specification:OLED_pixels;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff;fill-opacity:1"
+       x="7.445169"
+       y="37.019035"
+       id="text10"><tspan
+         sodipodi:role="line"
+         id="tspan10"
+         x="7.445169"
+         y="37.019035" /></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="menu_root_rough"
+     style="display:none">
+    <text
+       xml:space="preserve"
+       style="font-weight:500;font-size:8px;line-height:8px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff"
+       x="0"
+       y="7.9999847"
+       id="text2"><tspan
+         sodipodi:role="line"
+         id="tspan1"
+         x="0"
+         y="7.9999847"
+         style="font-size:8px;line-height:8px">MenuPath&gt;max16ch</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-weight:500;font-size:8px;line-height:8px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff"
+       x="98"
+       y="7.9999847"
+       id="text2-2"><tspan
+         sodipodi:role="line"
+         id="tspan1-7"
+         x="98"
+         y="7.9999847"
+         style="font-size:8px;line-height:8px">88/88</tspan></text>
+    <path
+       style="opacity:1;fill:none;stroke:#ffffff;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+       d="M 0,10.5 H 128"
+       id="path2" />
+    <path
+       style="fill:none;stroke:#ffffff;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+       d="M 41.5,11 V 37"
+       id="path2-6" />
+    <path
+       style="fill:none;stroke:#ffffff;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+       d="M 85.5,11 V 37"
+       id="path2-6-6" />
+    <path
+       style="fill:none;stroke:#ffffff;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+       d="M 0,37.5 H 128"
+       id="path2-1" />
+    <path
+       style="fill:none;stroke:#ffffff;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+       d="M 96.5,0 V 10"
+       id="path2-6-6-4" />
+    <text
+       xml:space="preserve"
+       style="font-weight:500;font-size:8px;line-height:8px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff"
+       x="0"
+       y="18.999985"
+       id="text2-0"><tspan
+         sodipodi:role="line"
+         id="tspan1-6"
+         x="0"
+         y="18.999985"
+         style="font-size:8px;line-height:8px">Length</tspan><tspan
+         sodipodi:role="line"
+         x="0"
+         y="26.999985"
+         style="font-size:8px;line-height:8px"
+         id="tspan3">coeff.</tspan><tspan
+         sodipodi:role="line"
+         x="0"
+         y="34.999985"
+         style="font-size:8px;line-height:8px"
+         id="tspan5">calibr.</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-weight:500;font-size:8px;line-height:8px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff"
+       x="43"
+       y="18.999985"
+       id="text2-0-9"><tspan
+         sodipodi:role="line"
+         x="43"
+         y="18.999985"
+         style="font-size:8px;line-height:8px"
+         id="tspan12">MMMMMMM</tspan><tspan
+         sodipodi:role="line"
+         x="43"
+         y="26.999985"
+         style="font-size:8px;line-height:8px"
+         id="tspan13">Item</tspan><tspan
+         sodipodi:role="line"
+         x="43"
+         y="34.999985"
+         style="font-size:8px;line-height:8px"
+         id="tspan14">(7x3)ch</tspan></text>
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+       id="rect14"
+       width="42"
+       height="26"
+       x="86"
+       y="11" />
+    <text
+       xml:space="preserve"
+       style="font-weight:500;font-size:8px;line-height:8px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1"
+       x="87"
+       y="18.999985"
+       id="text2-0-9-5"><tspan
+         sodipodi:role="line"
+         x="87"
+         y="18.999985"
+         style="font-size:8px;line-height:8px;fill:#000000;fill-opacity:1"
+         id="tspan12-9">MMMMMMM</tspan><tspan
+         sodipodi:role="line"
+         x="87"
+         y="26.999985"
+         style="font-size:8px;line-height:8px;fill:#000000;fill-opacity:1"
+         id="tspan13-7">Item</tspan><tspan
+         sodipodi:role="line"
+         x="87"
+         y="34.999985"
+         style="font-size:8px;line-height:8px;fill:#000000;fill-opacity:1"
+         id="tspan14-7">(7x3)ch</tspan></text>
+    <rect
+       style="display:inline;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.74574;stroke-dasharray:none;stroke-opacity:1"
+       id="rect14-2"
+       width="128"
+       height="26"
+       x="0"
+       y="38" />
+    <text
+       xml:space="preserve"
+       style="font-weight:500;font-size:8px;line-height:8px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1"
+       x="0"
+       y="45.999985"
+       id="text2-5"><tspan
+         sodipodi:role="line"
+         id="tspan1-63"
+         x="0"
+         y="45.999985"
+         style="font-size:8px;line-height:8px;fill:#000000;fill-opacity:1">Selected item detail.</tspan><tspan
+         sodipodi:role="line"
+         x="0"
+         y="53.999985"
+         style="font-size:8px;line-height:8px;fill:#000000;fill-opacity:1"
+         id="tspan17">Show val/graphics the</tspan><tspan
+         sodipodi:role="line"
+         x="0"
+         y="61.999985"
+         style="font-size:8px;line-height:8px;fill:#000000;fill-opacity:1"
+         id="tspan18">selected item returns</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="g30"
+     inkscape:label="menu_root_specific"
+     style="display:inline">
+    <text
+       xml:space="preserve"
+       style="font-weight:500;font-size:8px;line-height:8px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff"
+       x="0"
+       y="7.9999847"
+       id="text7"><tspan
+         sodipodi:role="line"
+         id="tspan7"
+         x="0"
+         y="7.9999847"
+         style="font-size:8px;line-height:8px">Menu</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-weight:500;font-size:8px;line-height:8px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff"
+       x="98"
+       y="7.9999847"
+       id="text15"><tspan
+         sodipodi:role="line"
+         id="tspan15"
+         x="98"
+         y="7.9999847"
+         style="font-size:8px;line-height:8px"> 3/05</tspan></text>
+    <path
+       style="opacity:1;fill:none;stroke:#ffffff;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+       d="M 0,10.5 H 128"
+       id="path15" />
+    <path
+       style="fill:none;stroke:#ffffff;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+       d="M 0,37.5 H 128"
+       id="path18" />
+    <path
+       style="fill:none;stroke:#ffffff;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+       d="M 96.5,0 V 10"
+       id="path19" />
+    <rect
+       style="display:inline;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.74574;stroke-dasharray:none;stroke-opacity:1"
+       id="rect27"
+       width="128"
+       height="26"
+       x="0"
+       y="38" />
+    <text
+       xml:space="preserve"
+       style="font-weight:500;font-size:8px;line-height:8px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1"
+       x="0"
+       y="45.999985"
+       id="text30"><tspan
+         sodipodi:role="line"
+         x="0"
+         y="45.999985"
+         style="font-size:8px;line-height:8px;fill:#000000;fill-opacity:1"
+         id="tspan30">You can calibrate</tspan><tspan
+         sodipodi:role="line"
+         x="0"
+         y="53.999985"
+         style="font-size:8px;line-height:8px;fill:#000000;fill-opacity:1"
+         id="tspan35">offset zeroing and</tspan><tspan
+         sodipodi:role="line"
+         x="0"
+         y="61.999985"
+         style="font-size:8px;line-height:8px;fill:#000000;fill-opacity:1"
+         id="tspan37">turn it on/off.  </tspan></text>
+    <g
+       id="g34">
+      <path
+         style="fill:none;stroke:#ffffff;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+         d="M 41.5,11 V 37"
+         id="path16" />
+      <path
+         style="fill:none;stroke:#ffffff;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+         d="M 85.5,11 V 37"
+         id="path17" />
+      <text
+         xml:space="preserve"
+         style="font-weight:500;font-size:8px;line-height:8px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff"
+         x="0"
+         y="18.999985"
+         id="text21"><tspan
+           sodipodi:role="line"
+           id="tspan19"
+           x="0"
+           y="18.999985"
+           style="font-size:8px;line-height:8px">   &gt;  </tspan><tspan
+           sodipodi:role="line"
+           x="0"
+           y="26.999985"
+           style="font-size:8px;line-height:8px"
+           id="tspan20">  RUN</tspan><tspan
+           sodipodi:role="line"
+           x="0"
+           y="34.999985"
+           style="font-size:8px;line-height:8px"
+           id="tspan21">   &gt;</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-weight:500;font-size:8px;line-height:8px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff"
+         x="43"
+         y="18.999985"
+         id="text24"><tspan
+           sodipodi:role="line"
+           x="43"
+           y="18.999985"
+           style="font-size:8px;line-height:8px"
+           id="tspan22">Length</tspan><tspan
+           sodipodi:role="line"
+           x="43"
+           y="26.999985"
+           style="font-size:8px;line-height:8px"
+           id="tspan23">coeff.</tspan><tspan
+           sodipodi:role="line"
+           x="43"
+           y="34.999985"
+           style="font-size:8px;line-height:8px"
+           id="tspan24">calib.</tspan></text>
+      <rect
+         style="opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+         id="rect24"
+         width="42"
+         height="26"
+         x="86"
+         y="11" />
+      <text
+         xml:space="preserve"
+         style="font-weight:500;font-size:8px;line-height:8px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1"
+         x="87"
+         y="18.999985"
+         id="text27"><tspan
+           sodipodi:role="line"
+           x="87"
+           y="18.999985"
+           style="font-size:8px;line-height:8px;fill:#000000;fill-opacity:1"
+           id="tspan25">Offset</tspan><tspan
+           sodipodi:role="line"
+           x="87"
+           y="26.999985"
+           style="font-size:8px;line-height:8px;fill:#000000;fill-opacity:1"
+           id="tspan32">zeroing</tspan></text>
+      <path
+         style="display:inline;fill:none;stroke:#ffffff;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+         d="M 129.5,11 V 37"
+         id="path16-3" />
+      <path
+         style="display:inline;fill:none;stroke:#ffffff;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
+         d="M 173.5,11 V 37"
+         id="path17-5" />
+      <text
+         xml:space="preserve"
+         style="font-weight:500;font-size:8px;line-height:8px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff"
+         x="131"
+         y="18.999987"
+         id="text24-6"><tspan
+           sodipodi:role="line"
+           x="131"
+           y="18.999987"
+           style="font-size:8px;line-height:8px"
+           id="tspan29">Value</tspan><tspan
+           sodipodi:role="line"
+           x="131"
+           y="26.999987"
+           style="font-size:8px;line-height:8px"
+           id="tspan33">averag-</tspan><tspan
+           sodipodi:role="line"
+           x="131"
+           y="34.999985"
+           style="font-size:8px;line-height:8px"
+           id="tspan34">ing</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-weight:500;font-size:8px;line-height:8px;font-family:OLED_pixels;-inkscape-font-specification:'OLED_pixels Medium';text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#000000;fill-opacity:1"
+         x="175"
+         y="18.999987"
+         id="text27-2"><tspan
+           sodipodi:role="line"
+           x="175"
+           y="18.999987"
+           style="font-size:8px;line-height:8px;fill:#ffffff;fill-opacity:1"
+           id="tspan32-0">UART</tspan><tspan
+           sodipodi:role="line"
+           x="175"
+           y="26.999987"
+           style="font-size:8px;line-height:8px;fill:#ffffff;fill-opacity:1"
+           id="tspan16">value</tspan><tspan
+           sodipodi:role="line"
+           x="175"
+           y="34.999985"
+           style="font-size:8px;line-height:8px;fill:#ffffff;fill-opacity:1"
+           id="tspan26">sending</tspan></text>
+    </g>
+  </g>
+</svg>

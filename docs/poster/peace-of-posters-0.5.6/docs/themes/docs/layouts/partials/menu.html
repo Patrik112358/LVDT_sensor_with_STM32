@@ -1,0 +1,14 @@
+{{- $page := .page }}
+{{- $menuID := .menuID }}
+
+{{- with index site.Menus $menuID }}
+  <nav>
+    <div class="top-menu">
+      <!-- TODO {{- partial "inline/sidebar/walk.html" (dict "page" $page "menuEntries" .) }}-->
+    </div>
+    <div class="topnav">
+      <a href="{{ $page.Site.BaseURL }}">{{ $page.Site.Title }}</a>
+      <a class="header-author" href="mailto:{{ $page.Site.Params.author_mail }}?subject={{ $page.Site.Title }}">{{ $page.Site.Params.author}}</a>
+    </div>
+  </nav>
+{{- end }}

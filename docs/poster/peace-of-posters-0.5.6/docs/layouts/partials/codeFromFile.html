@@ -1,0 +1,36 @@
+{{ $filename := (.Scratch.Get "file") }}
+
+{{ $start := (.Scratch.Get "start") | default 0 }}
+{{ $start_linenumber := math.Add (.Scratch.Get "start" | default 0) 1 }}
+
+{{ $end := (.Scratch.Get "end") }}
+{{ $diff := $end }}
+{{ if (.Scratch.Get "end") }}
+{{ $diff = math.Sub (int $end) $start }}
+{{ end }}
+
+{{ $content := readFile $filename }}
+{{ $content = split $content "\n" }}
+
+{{ $content = after $start $content }}
+{{ if $diff }}
+{{ $content = first $diff $content }}
+{{ end }}
+
+{{ $hl_inline := (.Scratch.Get "hl_inline") | default "true" }}
+
+{{ $content = delimit $content "\n" }}
+
+{{ $lang := (.Scratch.Get "lang") | default "typst" }}
+{{ $options := (.Scratch.Get "options") | default "" }}
+{{ if compare.Eq $options "" }}
+{{ $options = (print "linenos=table,linenostart=" $start_linenumber) }}
+{{ else }}
+{{ $options = (print "linenos=table,linenostart=" $start_linenumber "," $options ) }}
+{{ end }}
+
+{{ $filename := (.Scratch.Get "filename") | default "" }}
+
+<div style="overflow: scroll;">
+    {{ highlight $content $lang $options }}
+</div>

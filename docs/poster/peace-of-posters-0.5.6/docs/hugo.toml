@@ -1,0 +1,17 @@
+baseURL = 'https://jonaspleyer.github.io/peace-of-posters/'
+languageCode = 'en-us'
+title = 'peace-of-posters'
+theme = "hugo-book"
+
+[params]
+author = "Jonas Pleyer"
+author_mail = "jonas.sci@pleyer.org"
+BookSection = '*'
+BookLogo = 'favicon.svg'
+
+[markup.highlight]
+style = "catppuccin-frappe"
+
+[markup.goldmark.renderer]
+unsafe = true
+
