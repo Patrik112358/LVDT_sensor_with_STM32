@@ -1,0 +1,18 @@
+baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = 'My New Hugo Site'
+
+[[menus.main]]
+name = 'Home'
+pageRef = '/'
+weight = 10
+
+[[menus.main]]
+name = "Documentation"
+pageRef = '/documentation'
+weight = 20
+
+[[menus.main]]
+name = 'Showcase'
+pageRef = '/showcase'
+weight = 30

@@ -1,0 +1,148 @@
+:root {
+  --showcase-min-width: 350px;
+  --color-typst: #219dac;
+}
+
+a:link {
+  color: var(--color-typst);
+}
+
+a:visited {
+  color: var(--color-typst);
+}
+
+body {
+  font-family: 'HK Grotesk',Inter,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif;
+  color: #222;
+  font-family: sans-serif;
+  line-height: 1.5;
+  margin: 0px;
+}
+
+a {
+  color: #00e;
+  text-decoration: none;
+}
+
+.showcase-grid {
+  margin: 1em;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--showcase-min-width), 1fr));
+  gap: 36px;
+}
+
+.showcase-single {
+  background-color: var(--fbc-light-gray);
+  padding: 1em;
+}
+
+.showcase-single h2 {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.showcase-single-date {
+  float: right;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  padding: 3px;
+  border-bottom: 1px solid black;
+}
+
+td {
+  padding: 3px;
+  border-bottom: 1px solid rgb(200, 200, 200);
+}
+
+pre {
+    padding: 1em;
+}
+
+/* CODE STYLING */
+.code-type-block {
+  display: inline-block;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.code-type-block:link {
+  color: black;
+}
+
+.code-type-block:visited {
+  color: black;
+}
+
+.code-type-color {
+  background: linear-gradient(83deg,#7cd5ff,#a6fbca 33%,#fff37c 66%,#ffa49d);
+}
+
+.code-type-content {
+  background: #a6ebe6;
+}
+
+.code-type-none {
+  background: #ffcbc4;
+}
+
+.code-type-bool {
+  background: #ffedc1;
+}
+
+.code-type-relative {
+  background: #e7d9ff;
+}
+
+.code-type-dictionary {
+  background: #eff0f3;
+}
+
+.code-type-length {
+  background: #e7d9ff;
+}
+
+.code-type-str {
+  background: #d1ffe2;
+}
+
+.code-type-function {
+  background: #eff0f3;
+}
+
+.code-value-false {
+  color: #d73a49;
+}
+
+.code-value-true {
+  color: #d73a49;
+}
+
+.warning-block {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  color: rgb(50, 50, 50);
+  background: hsl(0, 0%, 100%);
+  border-left: 6px solid #ff9100;
+  box-shadow: 0 0.2rem 1rem rgba(0, 0, 0, 0.05), 0 0 0.1rem rgba(0, 0, 0, 0.1);
+}
+
+.warning-block h2 {
+  color: black;
+  background: rgba(255, 145, 0, 0.1);
+  padding: 0.2em;
+  padding-left: 1em;
+  margin: 0px;
+}
+
+.warning-block p {
+  margin-top: 0px;
+  padding: 1.2em;
+}
